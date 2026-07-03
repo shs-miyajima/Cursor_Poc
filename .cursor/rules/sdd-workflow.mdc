@@ -71,6 +71,9 @@ phase: 01-requirements
 
 - `02-design.status` が `approved` の場合のみ着手
 - 正常系・異常系・境界値・権限パターン・派生パターンを網羅する
+- 編集（更新）機能がある場合は全項目について空入力の挙動を確認する:
+  必須項目は「エラー + 元の値保持」、任意項目は「空値で上書き」（テンプレート
+  `03-test-plan.md` の「更新系の標準観点」に従う）
 - Playwright（E2E）を主、PHPUnit は Service 等の単体テスト、Vitest は JS 単体テストに限定
 - CSV 列形式は `docs/specs/_templates/03-test-plan.csv` のヘッダー行に従う
 

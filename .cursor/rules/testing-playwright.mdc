@@ -44,6 +44,9 @@ npx playwright test tests/test_<name>.spec.ts
 
 ## 注意
 
+- **環境制約（2026-07 時点・未解決）**: 社内 SSL で Playwright ブラウザをダウンロードできず、
+  システム Chrome / Edge もリモートデバッグ付き起動がクラッシュするため **E2E は実行不能**。
+  テストコードは作成し、実行は環境解決後に行う（IT 部門に CA 証明書 or リモートデバッグ許可を相談）
 - 失敗時は `tests/e2e_tests/test-results/` のスクリーンショット・trace を確認してから原因を分析する（**推測で修正しない**）
 - 連続失敗時は原因を分析してから再実行する（最大 3 イテレーション）
 - HTML レポートは自動では開かない。必要時は `npx playwright show-report` で確認する
