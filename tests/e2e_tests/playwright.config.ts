@@ -14,8 +14,14 @@ export default defineConfig({
   },
   projects: [
     {
+      // 社内ネットワークの SSL 制約で Playwright 用ブラウザをダウンロードできないため、
+      // インストール済みの Google Chrome を使用する（channel 指定）
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'msedge',
+        launchOptions: { args: ['--no-sandbox'] },
+      },
     },
   ],
 });
