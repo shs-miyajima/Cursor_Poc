@@ -42,7 +42,12 @@ description: >-
 
 - [ ] `02-design.status` が `approved` であることを確認
 - [ ] `03-test-plan.md` にテスト方針・カテゴリ別件数を記載
-- [ ] `03-test-plan.csv` にケース一覧（正常系・異常系・境界値・権限・派生パターン）
+- [ ] テスト種別ごとに CSV を分けてケース一覧を記載:
+  - Playwright E2E: `03-test-plan.csv`
+  - PHPUnit: `03-test-plan-phpunit.csv`（Service 等の単体テストがある場合）
+  - Vitest: `03-test-plan-vitest.csv`（JavaScript 単体テストがある場合）
+- [ ] 異なるテスト種別のケースを同じ CSV に混在させない
+- [ ] 各 CSV は 1 行 1 観点で、正常系・異常系・境界値・権限・派生パターンを網羅する
 - [ ] 承認後 `03-test-plan.status` を `approved` に
 
 **停止**: 承認までコード編集・テスト実行に進まない

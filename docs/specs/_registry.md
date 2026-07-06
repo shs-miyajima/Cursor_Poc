@@ -6,6 +6,7 @@
 |------|-------------|------------|--------------|------|
 | （例）example-feature | （機能名） | TBD | tests/test_example.spec.ts | |
 | sample-crud | サンプル CRUD（トップ画面） | TBD | tests/test_sample_crud.spec.ts | E2E は環境制約により実行保留 |
+| 001_create_management | 社内備品貸出管理 | TBD | tests/test_equipment_loans.spec.ts | 実装済み。E2E は環境制約により実行保留 |
 
 ## 追記ルール
 

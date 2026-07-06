@@ -1,0 +1,42 @@
+# feature_id: TBD
+display_name: 社内備品貸出管理
+slug: 001_create_management
+status: implemented
+created: 2026-07-06
+updated: 2026-07-06
+
+# 関連パス（実装開始後に追記）
+laravel:
+  controllers:
+    - app/Http/Controllers/EquipmentLoanPageController.php
+    - app/Http/Controllers/Api/EquipmentLoanController.php
+    - app/Http/Controllers/Api/EquipmentLoanStatusController.php
+  services:
+    - app/Services/MockUserResolver.php
+    - app/Services/EquipmentLoanQueryService.php
+    - app/Services/EquipmentLoanApplicationService.php
+    - app/Services/EquipmentLoanStatusService.php
+    - app/Services/EquipmentLoanPresenter.php
+  models:
+    - app/Models/User.php
+    - app/Models/Equipment.php
+    - app/Models/EquipmentLoanRequest.php
+  views:
+    - resources/views/equipment-loans/index.blade.php
+frontend:
+  js_files:
+    - resources/js/equipmentLoans.js
+    - resources/js/equipmentLoanApi.js
+    - resources/js/equipmentLoanView.js
+e2e:
+  spec_files:
+    - tests/e2e_tests/tests/test_equipment_loans.spec.ts
+vitest:
+  test_files:
+    - resources/js/equipmentLoanView.test.js
+    - resources/js/equipmentLoanApi.test.js
+
+# 参照元（正本は specs 内の Markdown）
+source_documents:
+  - path: k:\34_情報ｼｽﾃﾑ部\05temp\temp宮嶋一成\AIコーディングツール選定\specification.md
+    role: 要件の原典

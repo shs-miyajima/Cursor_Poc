@@ -27,7 +27,7 @@ alwaysApply: true
 |---------|--------|-------------|
 | 1. 仕様整理 | `01-requirements.md`, `open-questions.md` | `01-requirements.status` |
 | 2. 設計 | `02-design.md` | `02-design.status` |
-| 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv` | `03-test-plan.status` |
+| 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時） | `03-test-plan.status` |
 | 4. 実装・テスト | コード・テストコード | — |
 
 `*.status` の値: `draft` | `approved` | `rejected`
@@ -71,6 +71,20 @@ phase: 01-requirements
 
 - `02-design.status` が `approved` の場合のみ着手
 - 正常系・異常系・境界値・権限パターン・派生パターンを網羅する
+- CSV はテスト種別ごとに分けて作成する:
+  - Playwright E2E: `03-test-plan.csv`
+  - PHPUnit: `03-test-plan-phpunit.csv`（Service 等の単体テストがある場合）
+  - Vitest: `03-test-plan-vitest.csv`（JavaScript 単体テストがある場合）
+  - E2E / PHPUnit / Vitest のケースを同じ CSV に混在させない
+- `03-test-plan.csv` は 1 行 1 観点を原則とする。複数の入力項目、複数の
+  エラー理由、複数のロール、複数の状態遷移など、対象・条件・期待結果が分かれる内容を
+  1 ケースにまとめない。対象項目やエラー理由ごとに個別ケースへ分割する
+- 業務ルール・入力検証・権限・状態判定は、異常系だけでなく正常に通る代表ケースも
+  個別ケースとして記載する。原則として「OK ケース」と「NG ケース」を対で確認する
+- 要件で許可されている操作・状態遷移（例: 承認・却下・返却）は全て列挙し、
+  操作ごとに個別ケースを作成する。一部の操作だけ確認して残りを省略しない
+- 条件分岐は取り得る値ごとに確認する。「制限あり・一致」「制限あり・不一致」だけでなく、
+  「制限なし（NULL 等）」のような分岐値も正常系として個別ケースにする
 - 編集（更新）機能がある場合は全項目について空入力の挙動を確認する:
   必須項目は「エラー + 元の値保持」、任意項目は「空値で上書き」（テンプレート
   `03-test-plan.md` の「更新系の標準観点」に従う）

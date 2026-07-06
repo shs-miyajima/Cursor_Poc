@@ -30,7 +30,7 @@ docs/specs/
 |---------|--------|-------------|
 | 1. 仕様整理 | `01-requirements.md` | `01-requirements.status` |
 | 2. 設計 | `02-design.md` | `02-design.status` |
-| 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv` | `03-test-plan.status` |
+| 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時） | `03-test-plan.status` |
 | 4. 実装 | コード・テスト | — |
 
 `*.status` の値: `draft` | `approved` | `rejected`
@@ -40,6 +40,10 @@ status ファイルは 1 行目に状態、2 行目以降に `date:`（更新日
 各フェーズで承認（`approved`）を得てから次へ進みます。承認できるのは人間のみで、
 エージェントは直近のユーザー発言に明示的な承認がある場合に限り `approved` へ更新します。
 承認・差戻しのたびに `changelog.md` へ記録します。
+
+テスト設計の CSV はテスト種別ごとに分けます。Playwright E2E は `03-test-plan.csv`、
+PHPUnit は `03-test-plan-phpunit.csv`、Vitest は `03-test-plan-vitest.csv` を使用し、
+異なるテスト種別のケースを同じ CSV に混在させません。
 
 ## 機能 ID について
 
