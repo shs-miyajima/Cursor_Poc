@@ -69,4 +69,20 @@ class EquipmentLoanPresenterTest extends TestCase
             );
         }
     }
+
+    /**
+     * PHPUnit-dyn-014: 返却申請中は返却期限超過対象
+     */
+    public function test_return_requestedかつ返却期限が昨日以前の申請はis_overdueがtrueになる(): void
+    {
+        $loan = EquipmentLoanRequest::factory()->create([
+            'status' => EquipmentLoanStatus::ReturnRequested,
+            'requested_from' => Carbon::today()->subDays(5)->toDateString(),
+            'requested_to' => Carbon::today()->subDay()->toDateString(),
+        ]);
+
+        $item = $this->presenter->toItemArray($loan->load(['user', 'equipment']));
+
+        $this->assertTrue($item['is_overdue']);
+    }
 }

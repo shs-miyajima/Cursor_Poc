@@ -10,7 +10,7 @@ class EquipmentLoanPresenter
     /**
      * 一覧行用 JSON を作成する。
      */
-    public function toItemArray(EquipmentLoanRequest $loan, bool $canUpdateStatus = false): array
+    public function toItemArray(EquipmentLoanRequest $loan, bool $canUpdateStatus = false, bool $canRequestReturn = false): array
     {
         return [
             'id' => $loan->id,
@@ -23,6 +23,7 @@ class EquipmentLoanPresenter
             'reason' => $loan->reason,
             'is_overdue' => $loan->isOverdue(),
             'can_update_status' => $canUpdateStatus,
+            'can_request_return' => $canRequestReturn,
         ];
     }
 

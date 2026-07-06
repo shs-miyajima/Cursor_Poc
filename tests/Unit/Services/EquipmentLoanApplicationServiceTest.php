@@ -237,4 +237,68 @@ class EquipmentLoanApplicationServiceTest extends TestCase
 
         $this->assertTrue(true);
     }
+
+    /**
+     * PHPUnit-dyn-012: 返却申請中は重複期間対象
+     */
+    public function test_同一ユーザーのreturn_requested申請と重複する期間は422相当の例外になる(): void
+    {
+        $user = $this->makeStaff();
+        EquipmentLoanRequest::factory()->create([
+            'user_id' => $user->id,
+            'status' => EquipmentLoanStatus::ReturnRequested,
+            'requested_from' => Carbon::today()->addDays(7)->toDateString(),
+            'requested_to' => Carbon::today()->addDays(9)->toDateString(),
+        ]);
+
+        try {
+            $this->service->assertNoUserOverlap(
+                $user,
+                Carbon::today()->addDays(8),
+                Carbon::today()->addDays(12),
+            );
+            $this->fail('ValidationException が発生していません');
+        } catch (ValidationException $e) {
+            $this->assertSame(
+                '指定期間は既に別の備品を申請中または貸出中です',
+                $e->validator->errors()->first(),
+            );
+        }
+    }
+
+    /**
+     * PHPUnit-dyn-013: 返却申請中は在庫数対象
+     */
+    public function test_同期間のapprovedとreturn_requestedの合計が在庫数以上の場合は422相当の例外になる(): void
+    {
+        $equipment = Equipment::factory()->create(['stock_count' => 2]);
+        $from = Carbon::today()->addDays(7)->toDateString();
+        $to = Carbon::today()->addDays(9)->toDateString();
+        EquipmentLoanRequest::factory()->create([
+            'equipment_id' => $equipment->id,
+            'status' => EquipmentLoanStatus::Approved,
+            'requested_from' => $from,
+            'requested_to' => $to,
+        ]);
+        EquipmentLoanRequest::factory()->create([
+            'equipment_id' => $equipment->id,
+            'status' => EquipmentLoanStatus::ReturnRequested,
+            'requested_from' => $from,
+            'requested_to' => $to,
+        ]);
+
+        try {
+            $this->service->assertStockAvailable(
+                $equipment,
+                Carbon::today()->addDays(8),
+                Carbon::today()->addDays(8),
+            );
+            $this->fail('ValidationException が発生していません');
+        } catch (ValidationException $e) {
+            $this->assertSame(
+                '指定期間は備品の在庫数を超えています',
+                $e->validator->errors()->first(),
+            );
+        }
+    }
 }

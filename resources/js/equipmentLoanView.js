@@ -1,6 +1,7 @@
 const STATUS_BADGES = {
     pending: { label: '申請中', className: 'bg-yellow-100 text-yellow-800' },
     approved: { label: '貸出中', className: 'bg-blue-100 text-blue-800' },
+    return_requested: { label: '返却申請中', className: 'bg-orange-100 text-orange-800' },
     returned: { label: '返却済', className: 'bg-gray-100 text-gray-600' },
     rejected: { label: '却下', className: 'bg-red-100 text-red-800' },
 };
@@ -10,6 +11,8 @@ const UPDATE_ACTIONS = [
     { status: 'rejected', label: '却下', className: 'bg-red-600 hover:bg-red-500' },
     { status: 'returned', label: '返却', className: 'bg-gray-600 hover:bg-gray-500' },
 ];
+
+const RETURN_REQUEST_ACTION = { status: 'return_requested', label: '返却申請', className: 'bg-emerald-600 hover:bg-emerald-500' };
 
 /**
  * ステータスバッジの表示情報を返す。
@@ -29,12 +32,16 @@ function renderRow(item) {
     const overdueIcon = item.is_overdue
         ? '<span data-testid="overdue-icon" title="返却期限超過" class="text-red-600 font-bold">⚠</span>'
         : '';
-    const buttons = item.can_update_status
+    const updateButtons = item.can_update_status
         ? UPDATE_ACTIONS.map(
               (action) =>
                   `<button type="button" data-testid="status-button-${action.status}" data-loan-id="${item.id}" data-status="${action.status}" class="rounded px-2 py-1 text-xs text-white ${action.className}">${action.label}</button>`,
           ).join(' ')
         : '';
+    const returnRequestButton = item.can_request_return
+        ? `<button type="button" data-testid="return-request-button" data-loan-id="${item.id}" data-status="${RETURN_REQUEST_ACTION.status}" class="rounded px-2 py-1 text-xs text-white ${RETURN_REQUEST_ACTION.className}">${RETURN_REQUEST_ACTION.label}</button>`
+        : '';
+    const buttons = [updateButtons, returnRequestButton].filter(Boolean).join(' ');
 
     return `
         <tr data-testid="loan-row" data-loan-id="${item.id}" class="border-b ${item.is_overdue ? 'bg-red-50' : ''}">

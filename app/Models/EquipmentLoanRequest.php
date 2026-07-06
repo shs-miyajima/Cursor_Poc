@@ -41,11 +41,11 @@ class EquipmentLoanRequest extends Model
     }
 
     /**
-     * 返却期限超過: status = approved かつ requested_to が本日より前。
+     * 返却期限超過: status が approved または return_requested かつ requested_to が本日より前。
      */
     public function isOverdue(): bool
     {
-        return $this->status === EquipmentLoanStatus::Approved
+        return in_array($this->status, [EquipmentLoanStatus::Approved, EquipmentLoanStatus::ReturnRequested], true)
             && $this->requested_to->lt(Carbon::today());
     }
 }

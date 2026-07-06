@@ -34,8 +34,10 @@ class EquipmentLoanStatusController extends Controller
 
         $loan->load(['user', 'equipment']);
 
+        $canRequestReturn = $loan->user_id === $operator->id && $loan->status === EquipmentLoanStatus::Approved;
+
         return response()->json([
-            'item' => $this->presenter->toItemArray($loan, $operator->isAdmin()),
+            'item' => $this->presenter->toItemArray($loan, $operator->isAdmin(), $canRequestReturn),
         ]);
     }
 }

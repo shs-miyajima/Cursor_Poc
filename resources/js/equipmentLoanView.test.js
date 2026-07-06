@@ -19,6 +19,7 @@ function makeItem(overrides = {}) {
         reason: '検証作業で使用するため',
         is_overdue: false,
         can_update_status: false,
+        can_request_return: false,
         ...overrides,
     };
 }
@@ -174,5 +175,26 @@ describe('equipmentLoanView', () => {
         expect(tbody.querySelector('[data-testid="status-button-approved"]')).toBeNull();
         expect(tbody.querySelector('[data-testid="status-button-rejected"]')).toBeNull();
         expect(tbody.querySelector('[data-testid="status-button-returned"]')).toBeNull();
+    });
+
+    // Vitest-dsp-014: ステータスバッジ return_requested
+    it('return_requested は返却申請中ラベルとオレンジ系クラスで返る', () => {
+        const badge = statusBadge('return_requested');
+        expect(badge.label).toBe('返却申請中');
+        expect(badge.className).toContain('orange');
+    });
+
+    // Vitest-auth-003: 返却申請ボタン表示
+    it('can_request_return が true の行に返却申請ボタンが表示される', () => {
+        renderLoanTable(tbody, [makeItem({ status: 'approved', can_request_return: true })]);
+
+        expect(tbody.querySelector('[data-testid="return-request-button"]')).not.toBeNull();
+    });
+
+    // Vitest-auth-004: 返却申請ボタン非表示
+    it('can_request_return が false の行に返却申請ボタンが表示されない', () => {
+        renderLoanTable(tbody, [makeItem({ status: 'approved', can_request_return: false })]);
+
+        expect(tbody.querySelector('[data-testid="return-request-button"]')).toBeNull();
     });
 });

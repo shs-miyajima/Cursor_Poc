@@ -31,6 +31,9 @@ $env:FEATURE = '001_create_management'; npx playwright test tests/test_<name>.sp
 
 - Laravel 標準認証のため **並列実行可**（`playwright.config.ts` の `workers` は環境に応じて設定）
 - テスト前に `run_debug.bat verify` で Laravel（Docker、http://localhost:8000）の起動を確認する
+- **フロントエンド資産は `globalSetup`（`tests/e2e_tests/global-setup.ts`）が実行のたびに
+  自動で `npm run build` する**。`resources/js` を変更した後に手動でビルドし直す必要はない
+  （ビルド未反映のまま実行して原因不明の失敗になる事故を防ぐための仕組み）
 
 ## DB 状態（実行前の初期化）
 

@@ -48,13 +48,17 @@ class EquipmentLoanApplicationService
     }
 
     /**
-     * 同一ユーザーの pending / approved 申請と期間が重複しないことを検証する。
+     * 同一ユーザーの pending / approved / return_requested 申請と期間が重複しないことを検証する。
      */
     public function assertNoUserOverlap(User $user, CarbonInterface $from, CarbonInterface $to): void
     {
         $overlapExists = EquipmentLoanRequest::query()
             ->where('user_id', $user->id)
-            ->whereIn('status', [EquipmentLoanStatus::Pending, EquipmentLoanStatus::Approved])
+            ->whereIn('status', [
+                EquipmentLoanStatus::Pending,
+                EquipmentLoanStatus::Approved,
+                EquipmentLoanStatus::ReturnRequested,
+            ])
             ->whereDate('requested_from', '<=', $to)
             ->whereDate('requested_to', '>=', $from)
             ->exists();
@@ -67,13 +71,13 @@ class EquipmentLoanApplicationService
     }
 
     /**
-     * 同一備品の対象期間における approved 件数が stock_count 未満であることを検証する。
+     * 同一備品の対象期間における approved + return_requested 件数が stock_count 未満であることを検証する。
      */
     public function assertStockAvailable(Equipment $equipment, CarbonInterface $from, CarbonInterface $to): void
     {
         $approvedCount = EquipmentLoanRequest::query()
             ->where('equipment_id', $equipment->id)
-            ->where('status', EquipmentLoanStatus::Approved)
+            ->whereIn('status', [EquipmentLoanStatus::Approved, EquipmentLoanStatus::ReturnRequested])
             ->whereDate('requested_from', '<=', $to)
             ->whereDate('requested_to', '>=', $from)
             ->count();

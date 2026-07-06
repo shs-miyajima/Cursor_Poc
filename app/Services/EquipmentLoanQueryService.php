@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\EquipmentLoanStatus;
 use App\Models\Equipment;
 use App\Models\EquipmentLoanRequest;
 use App\Models\User;
@@ -53,7 +54,11 @@ class EquipmentLoanQueryService
                 'role' => $viewer->role->value,
             ],
             'items' => $loans
-                ->map(fn (EquipmentLoanRequest $loan) => $this->presenter->toItemArray($loan, $canUpdateStatus))
+                ->map(fn (EquipmentLoanRequest $loan) => $this->presenter->toItemArray(
+                    $loan,
+                    $canUpdateStatus,
+                    $this->canRequestReturn($viewer, $loan),
+                ))
                 ->values()
                 ->all(),
             'overdue_summary' => $this->presenter->toOverdueSummary($overdueLoans),
@@ -78,5 +83,13 @@ class EquipmentLoanQueryService
                 ])
                 ->all(),
         ];
+    }
+
+    /**
+     * 申請者本人が閲覧している貸出中（approved）の申請かどうかを判定する。
+     */
+    private function canRequestReturn(User $viewer, EquipmentLoanRequest $loan): bool
+    {
+        return $loan->user_id === $viewer->id && $loan->status === EquipmentLoanStatus::Approved;
     }
 }

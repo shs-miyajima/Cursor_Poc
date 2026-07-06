@@ -74,6 +74,36 @@ class EquipmentLoanQueryServiceTest extends TestCase
             }
             $this->assertArrayHasKey('is_overdue', $result['items'][0]);
             $this->assertArrayHasKey('can_update_status', $result['items'][0]);
+            $this->assertArrayHasKey('can_request_return', $result['items'][0]);
         }
+    }
+
+    /**
+     * PHPUnit-other-002: can_request_return 判定
+     */
+    public function test_本人のapproved申請のみcan_request_returnがtrueになる(): void
+    {
+        $owner = User::factory()->create(['role' => 'admin']);
+        $other = User::factory()->create(['role' => 'staff']);
+
+        $ownApproved = EquipmentLoanRequest::factory()->create([
+            'user_id' => $owner->id,
+            'status' => EquipmentLoanStatus::Approved,
+        ]);
+        $otherApproved = EquipmentLoanRequest::factory()->create([
+            'user_id' => $other->id,
+            'status' => EquipmentLoanStatus::Approved,
+        ]);
+        $ownPending = EquipmentLoanRequest::factory()->create([
+            'user_id' => $owner->id,
+            'status' => EquipmentLoanStatus::Pending,
+        ]);
+
+        $result = $this->service->listFor($owner, null);
+        $itemsById = collect($result['items'])->keyBy('id');
+
+        $this->assertTrue($itemsById[$ownApproved->id]['can_request_return']);
+        $this->assertFalse($itemsById[$otherApproved->id]['can_request_return']);
+        $this->assertFalse($itemsById[$ownPending->id]['can_request_return']);
     }
 }

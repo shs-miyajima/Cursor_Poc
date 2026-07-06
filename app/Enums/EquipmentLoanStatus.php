@@ -6,6 +6,7 @@ enum EquipmentLoanStatus: string
 {
     case Pending = 'pending';
     case Approved = 'approved';
+    case ReturnRequested = 'return_requested';
     case Returned = 'returned';
     case Rejected = 'rejected';
 
@@ -16,7 +17,7 @@ enum EquipmentLoanStatus: string
      */
     public static function updatable(): array
     {
-        return [self::Approved, self::Rejected, self::Returned];
+        return [self::Approved, self::Rejected, self::Returned, self::ReturnRequested];
     }
 
     /**
@@ -32,6 +33,7 @@ enum EquipmentLoanStatus: string
         return match ($this) {
             self::Pending => '申請中',
             self::Approved => '貸出中',
+            self::ReturnRequested => '返却申請中',
             self::Returned => '返却済',
             self::Rejected => '却下',
         };

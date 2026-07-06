@@ -7,6 +7,8 @@ const feature = process.env.FEATURE ?? 'all';
 
 export default defineConfig({
   testDir: './tests',
+  // 実行前に必ず `npm run build` でフロントエンド資産を最新化する（ビルド未反映による誤検知を防止）
+  globalSetup: require.resolve('./global-setup'),
   outputDir: `test-results/${feature}`,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
