@@ -22,10 +22,11 @@ globs:
 
 ## 実行
 
-```bash
+```powershell
 cd tests/e2e_tests
-npx playwright test
-npx playwright test tests/test_<name>.spec.ts
+# エビデンス（test-results / playwright-report）を機能単位のフォルダに出力するため
+# FEATURE に docs/specs の slug を指定して実行する（未指定時は all フォルダ）
+$env:FEATURE = '001_create_management'; npx playwright test tests/test_<name>.spec.ts
 ```
 
 - Laravel 標準認証のため **並列実行可**（`playwright.config.ts` の `workers` は環境に応じて設定）
@@ -44,9 +45,10 @@ npx playwright test tests/test_<name>.spec.ts
 
 ## 注意
 
-- **環境制約（2026-07 時点・未解決）**: 社内 SSL で Playwright ブラウザをダウンロードできず、
-  システム Chrome / Edge もリモートデバッグ付き起動がクラッシュするため **E2E は実行不能**。
-  テストコードは作成し、実行は環境解決後に行う（IT 部門に CA 証明書 or リモートデバッグ許可を相談）
+- **環境制約（2026-07 解決済み）**: 社内 SSL 復号プロキシにより Node.js 標準ではブラウザを
+  ダウンロードできない。ユーザー環境変数 `NODE_OPTIONS=--use-system-ca` を設定して
+  Windows 証明書ストアを参照させ、`npx playwright install chromium` で Playwright 版
+  Chromium を使用する（`channel: 'msedge'` は EDR によりクラッシュするため使用しない）
 - 失敗時は `tests/e2e_tests/test-results/` のスクリーンショット・trace を確認してから原因を分析する（**推測で修正しない**）
 - 連続失敗時は原因を分析してから再実行する（最大 3 イテレーション）
 - HTML レポートは自動では開かない。必要時は `npx playwright show-report` で確認する
