@@ -28,7 +28,7 @@ alwaysApply: true
 | 1. 仕様整理 | `01-requirements.md`, `open-questions.md`, `effort-report.md`（見積） | `01-requirements.status` |
 | 2. 設計 | `02-design.md` | `02-design.status` |
 | 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時） | `03-test-plan.status` |
-| 4. 実装・テスト | コード・テストコード | — |
+| 4. 実装・テスト | コード・テストコード, `04-completion-report.md` | — |
 
 `*.status` の値: `draft` | `approved` | `rejected`
 
@@ -54,6 +54,18 @@ phase: 01-requirements
 
 - **承認時・差戻し時のいずれも** `changelog.md` に 1 エントリ記録する（差戻し時は理由も必須）
 - 差戻し時は `rejected` にする
+
+### 承認後の仕様変更（差分承認）
+
+承認済み（`approved`）フェーズの成果物に変更が必要になった場合は、以下の手順で差分承認を行う。
+承認済みファイルを黙って書き換えてはならない。
+
+1. 変更内容と理由をユーザーに提示し、変更に着手する合意を得る
+2. 該当フェーズの `*.status` を `draft` に戻し、`changelog.md` に記録する（操作: `reopened`、変更理由を含める）
+3. 成果物を修正し、通常どおり選択式の承認確認を提示して再承認を得る
+4. 後続フェーズが承認済みの場合は波及を確認し、影響があれば同様に `draft` に戻して修正する
+   （例: 要件変更が設計・テスト設計に波及する場合は 02 / 03 も差分承認の対象にする）
+5. 実装済みコードに影響する場合は、テスト計画 CSV の該当ケースの修正・追加もセットで行う
 
 ## 工数レポート（effort-report.md）
 
@@ -125,3 +137,5 @@ phase: 01-requirements
 
 - カバレッジ閾値に到達できない行がある場合は、テストを歪めて通すのではなく、
   理由を `03-test-plan.md` または PR に明記して許容する
+- 完了時に `04-completion-report.md`（テンプレート: `_templates/04-completion-report.md`）を作成し、
+  テスト実行結果・カバレッジ実績・エビデンスパス・基準未達の理由を記録して完了報告に含める

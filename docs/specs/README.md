@@ -31,7 +31,7 @@ docs/specs/
 | 1. 仕様整理 | `01-requirements.md` | `01-requirements.status` |
 | 2. 設計 | `02-design.md` | `02-design.status` |
 | 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時） | `03-test-plan.status` |
-| 4. 実装 | コード・テスト | — |
+| 4. 実装 | コード・テスト, `04-completion-report.md` | — |
 
 `*.status` の値: `draft` | `approved` | `rejected`
 

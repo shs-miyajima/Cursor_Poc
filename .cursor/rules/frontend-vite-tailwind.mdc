@@ -45,6 +45,15 @@ Tailwind CSS
 - DOM 操作は素の JavaScript（フレームワーク不使用）
 - スタイルは Tailwind ユーティリティクラスを優先
 
+## data-testid（E2E 連携）
+
+- E2E（Playwright）から参照される要素には **`data-testid` を付与する**。
+  対象: 一覧行、ボタン、バッジ、アラート、エラー領域、フォーム等、テストが操作・検証する要素
+- 命名はケバブケースで「対象-種別（-状態）」とする
+  （例: `loan-row`, `status-badge`, `status-button-approved`, `overdue-icon`）
+- Tailwind クラスや表示文言は変わり得るため、E2E のセレクタとして使わせない
+  （`data-testid` を付けておくことでテストの安定性を担保する）
+
 ## 開発
 
 ```bash

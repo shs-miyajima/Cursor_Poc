@@ -32,6 +32,32 @@ $env:FEATURE = '001_create_management'; npx playwright test tests/test_<name>.sp
 - Laravel 標準認証のため **並列実行可**（`playwright.config.ts` の `workers` は環境に応じて設定）
 - テスト前に `run_debug.bat verify` で Laravel（Docker、http://localhost:8000）の起動を確認する
 
+## DB 状態（実行前の初期化）
+
+E2E テストは申請作成・ステータス更新等で DB を変更するため、実行を繰り返すとデータが蓄積する。
+
+- **E2E 実行前に DB を初期化する**:
+
+```bash
+docker compose exec app php artisan migrate:fresh --seed
+```
+
+- テストコードは **Seeder 投入直後の状態を前提** に書く。過去の実行で蓄積したデータや、
+  他のテストが作成したデータに依存しない（依存が必要な場合はテスト内で作成する）
+- 件数・0 件表示・一覧順序を検証するケースは、初期化直後の Seeder データを基準にする
+
+### Seeder-first（開発 DB は使い捨て）
+
+- 開発 DB は `migrate:fresh --seed` でいつでも再現できる状態を保つ。**消えて困るデータを DB に置かない**
+- 手動確認で繰り返し使いたいデータ（特定の状態の申請・ユーザー等）は、手入力ではなく
+  **Seeder に追加** する。これにより初期化＝「いつものデータの復元」になる
+- どうしても消したくない一時データがある場合のみ、初期化前に `pg_dump` 等でバックアップを取る
+
+## セレクタ
+
+- E2E のセレクタは `data-testid` を優先する（CSS クラス・表示文言・DOM 構造に依存しない）
+- 実装時の `data-testid` 付与規約は `.cursor/rules/frontend-vite-tailwind.mdc` を参照
+
 ## テスト設計
 
 - SDD フェーズ 3 の `03-test-plan.csv` がケースの正本

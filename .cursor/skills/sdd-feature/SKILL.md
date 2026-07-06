@@ -62,6 +62,7 @@ description: >-
 - [ ] Vitest（JS 単体、該当時）
 - [ ] Playwright E2E（`tests/e2e_tests/`）
 - [ ] 失敗時は原因分析 → 修正（最大 3 回）→ エスカレーション
+- [ ] `04-completion-report.md` を作成（テスト実行結果・カバレッジ実績・エビデンスパス・基準未達の理由）
 - [ ] 完了時に `effort-report.md` の「§2 実績記録」「§3 削減効果」を確定し、完了報告に含める
 
 ## 承認の受け方
