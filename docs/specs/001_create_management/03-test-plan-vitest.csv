@@ -10,6 +10,8 @@ Test ID,カテゴリ,対象(項目/機能),前提条件,入力/操作,手順,期
 "Vitest-dsp-009","表示確認","期限切れアラート非表示","overdue_summary.count が 0","overdue_summary を描画関数に渡す","期限切れアラート描画を実行","アラートが非表示になり対象概要は描画されない","Vitest","01-requirements §11"
 "Vitest-dsp-010","表示確認","期限切れ注意アイコン表示","is_overdue が true の一覧行データを用意","一覧行を描画","equipmentLoanView.js の行描画を実行","対象行に注意アイコンが表示される","Vitest","01-requirements §5.2"
 "Vitest-dsp-011","表示確認","期限切れ注意アイコン非表示","is_overdue が false の一覧行データを用意","一覧行を描画","equipmentLoanView.js の行描画を実行","対象行に注意アイコンが表示されない","Vitest","01-requirements §11"
+"Vitest-dsp-012","表示確認","一覧行 理由 null 描画 OK","reason が null の一覧行データを用意","一覧行を描画","equipmentLoanView.js の行描画を実行","理由セルが空欄のまま行が正常に描画される","Vitest（カバレッジ基準導入時に追加）","01-requirements §5.2"
+"Vitest-dsp-013","表示確認","期限切れ情報欠落時のアラート非表示","overdue_summary が null のレスポンスを用意","overdue_summary を描画関数に渡す","期限切れアラート描画を実行","アラートが非表示になり対象概要は描画されない","Vitest（カバレッジ基準導入時に追加）","01-requirements §11"
 "Vitest-auth-001","権限","管理者ボタン表示","can_update_status が true の一覧行データを用意","一覧行を描画","equipmentLoanView.js の行描画を実行","承認 却下 返却ボタンが表示される","Vitest","01-requirements §8 02-design §3.3"
 "Vitest-auth-002","権限","管理者ボタン非表示","can_update_status が false の一覧行データを用意","一覧行を描画","equipmentLoanView.js の行描画を実行","承認 却下 返却ボタンが表示されない","Vitest","01-requirements §8 02-design §3.3"
 "Vitest-other-001","その他","一覧 API URL 組み立て OK","mock_user_id と search を用意","list API ラッパーを呼び出す","equipmentLoanApi.js の一覧取得関数を実行","/api/equipment-loans に mock_user_id と search が付与される","Vitest","02-design §3.2 §6.1"

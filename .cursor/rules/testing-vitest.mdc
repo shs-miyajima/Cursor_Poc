@@ -26,10 +26,19 @@ globs:
 ## 実行
 
 ```bash
-npm run test          # 全テスト
-npm run test:watch    # ウォッチモード（設定時）
-npx vitest run <path> # 個別実行
+npm run test           # 全テスト
+npm run test:coverage  # カバレッジ付き（閾値未達で失敗）
+npm run test:watch     # ウォッチモード（設定時）
+npx vitest run <path>  # 個別実行
 ```
+
+## カバレッジ基準（実装完了の条件）
+
+- **テスト対象とした JS モジュールは lines / functions / branches / statements すべて 90% 以上**
+  （閾値は `vitest.config.js` の `coverage.thresholds` で強制。未達はテスト失敗になる）
+- エントリ・DOM 配線（`app.js` / `bootstrap.js` / ページエントリ）は E2E の担当のため計測対象外
+- 閾値に到達できない行がある場合は、テストを歪めて通すのではなく、
+  理由を `03-test-plan.md` または PR に明記して許容する
 
 ## 方針
 

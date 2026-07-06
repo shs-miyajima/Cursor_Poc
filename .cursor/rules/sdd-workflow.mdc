@@ -112,3 +112,16 @@ phase: 01-requirements
 - `03-test-plan.status` が `approved` の場合のみ着手
 - 実装 → PHPUnit（該当時）→ Vitest（該当時）→ Playwright の順で実行
 - 自動修正は最大 3 イテレーション。解決しない場合は人間にエスカレーションする
+
+### 実装完了の基準
+
+以下をすべて満たした時点で実装完了とする。
+
+| テスト | 基準 |
+|--------|------|
+| PHPUnit | 全件成功 + Service・Enum 等の担当範囲は原則 100%、全体 80% 以上（`--coverage --min=80`） |
+| Vitest | 全件成功 + テスト対象 JS モジュールは 90% 以上（`npm run test:coverage`、閾値で強制） |
+| Playwright | `03-test-plan.csv` の全ケースを実装し全件成功（コードカバレッジは対象外） |
+
+- カバレッジ閾値に到達できない行がある場合は、テストを歪めて通すのではなく、
+  理由を `03-test-plan.md` または PR に明記して許容する

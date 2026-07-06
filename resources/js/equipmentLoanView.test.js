@@ -141,6 +141,23 @@ describe('equipmentLoanView', () => {
         expect(tbody.querySelector('[data-testid="overdue-icon"]')).toBeNull();
     });
 
+    // Vitest-dsp-012: 理由 null の行描画（任意項目のためデータ上 null があり得る）
+    it('reason が null の行は理由セルが空欄のまま描画される', () => {
+        renderLoanTable(tbody, [makeItem({ reason: null })]);
+
+        const row = tbody.querySelector('[data-testid="loan-row"]');
+        expect(row).not.toBeNull();
+        expect(row.textContent).toContain('山田 太郎');
+    });
+
+    // Vitest-dsp-013: overdue_summary 欠落時のアラート非表示
+    it('overdueSummary が null のときアラートは非表示になる', () => {
+        renderOverdueAlert(alertElement, null);
+
+        expect(alertElement.hidden).toBe(true);
+        expect(alertElement.innerHTML).toBe('');
+    });
+
     // Vitest-auth-001: 管理者ボタン表示
     it('can_update_status が true の行に承認・却下・返却ボタンが表示される', () => {
         renderLoanTable(tbody, [makeItem({ can_update_status: true })]);

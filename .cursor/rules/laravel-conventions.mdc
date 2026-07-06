@@ -46,6 +46,18 @@ globs:
 - PHPUnit は **Service 等の単体テストに限定**
 - E2E は Playwright が主。Controller の E2E 代替テストは原則書かない
 
+### カバレッジ基準（実装完了の条件）
+
+- **Service・Enum 等の PHPUnit 担当範囲は原則 100%**（到達できない行は理由を
+  `03-test-plan.md` または PR に明記して許容する）
+- **プロジェクト全体では 80% 以上**（`--min=80` で強制。未達はテスト失敗になる）
+- Controller・Blade 等の未カバーは E2E（Playwright）の担当のため、PHPUnit で
+  重複してテストしない
+
+```bash
+docker compose exec -e XDEBUG_MODE=coverage app php artisan test --coverage --min=80
+```
+
 ## コマンド
 
 artisan / PHPUnit は **Docker コンテナ内で実行** する。
