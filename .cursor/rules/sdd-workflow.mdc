@@ -25,7 +25,7 @@ alwaysApply: true
 
 | フェーズ | 成果物 | 承認ファイル |
 |---------|--------|-------------|
-| 1. 仕様整理 | `01-requirements.md`, `open-questions.md` | `01-requirements.status` |
+| 1. 仕様整理 | `01-requirements.md`, `open-questions.md`, `effort-report.md`（見積） | `01-requirements.status` |
 | 2. 設計 | `02-design.md` | `02-design.status` |
 | 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時） | `03-test-plan.status` |
 | 4. 実装・テスト | コード・テストコード | — |
@@ -54,6 +54,22 @@ phase: 01-requirements
 
 - **承認時・差戻し時のいずれも** `changelog.md` に 1 エントリ記録する（差戻し時は理由も必須）
 - 差戻し時は `rejected` にする
+
+## 工数レポート（effort-report.md）
+
+人手作業との比較で工数削減効果を測定するため、`docs/specs/<slug>/effort-report.md` を
+テンプレート `docs/specs/_templates/effort-report.md` に沿って運用する。
+
+- **見積（フェーズ 1 開始時）**: フェーズ 1 の成果物を作る際に「§1 人手想定工数」を記入する。
+  「AI を使わず中堅エンジニア 1 名が手作業で同じ成果物を作った場合」をフェーズ別に見積もり、
+  規模（節数・クラス数・テストケース数等）の根拠を添える。後続フェーズで規模の前提が
+  大きく変わった場合は見積を更新し、変更理由を備考に残す
+- **実績（各フェーズ承認時）**: 承認時（フェーズ 4 は完了時）に「§2 実績記録」へ
+  着手・承認のチャット時刻と経過時間、差戻し回数を記入する。経過時間は人間の確認・
+  承認待ちを含めた実時間とする
+- **削減効果（フェーズ 4 完了時）**: 「§3 削減効果」に削減時間と削減率を算出して記入し、
+  完了報告に含める
+- 工数レポートは記録用であり、承認ゲートの対象外（status ファイルは作らない）
 
 ## フェーズ 1: 仕様整理
 

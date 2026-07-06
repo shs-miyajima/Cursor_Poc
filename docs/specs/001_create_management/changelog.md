@@ -2,6 +2,12 @@
 
 ## 2026-07-06
 
+- フェーズ: —（記録）
+- 操作: draft
+- 内容: 工数レポートの仕組みを導入し、`effort-report.md` にチャット履歴から遡って人手想定工数（50h）と実績（1h 34m）を記録。削減率約 97%。
+
+## 2026-07-06
+
 - フェーズ: 実装・テスト
 - 操作: draft
 - 内容: フェーズ 4 実装完了。Migration / Model / Enum / Service / Form Request / Controller / Route / Blade / JS / Seeder を実装し、migrate + seed + 画面/API 疎通を確認。PHPUnit 31 件パス（テスト計画 29 ケース + 既存サンプル 2 件）、Vitest 20 件パス（テスト計画 19 ケース + 既存サンプル 1 件）。Playwright E2E は 37 ケース分のテストコードを tests/e2e_tests/tests/test_equipment_loans.spec.ts に作成したが、環境制約（社内 SSL によりブラウザ取得不可）のため実行はスキップ（ユーザー了承済み）。環境解決後に実行する。
