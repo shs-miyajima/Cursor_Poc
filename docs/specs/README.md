@@ -30,7 +30,7 @@ docs/specs/
 |---------|--------|-------------|
 | 1. 仕様整理 | `01-requirements.md` | `01-requirements.status` |
 | 2. 設計 | `02-design.md` | `02-design.status` |
-| 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時） | `03-test-plan.status` |
+| 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時）, `03-test-plan-review-checklist.md`（AI 独立レビュー結果） | `03-test-plan.status` |
 | 4. 実装 | コード・テスト, `04-completion-report.md` | — |
 
 `*.status` の値: `draft` | `approved` | `rejected`
@@ -44,6 +44,11 @@ status ファイルは 1 行目に状態、2 行目以降に `date:`（更新日
 テスト設計の CSV はテスト種別ごとに分けます。Playwright E2E は `03-test-plan.csv`、
 PHPUnit は `03-test-plan-phpunit.csv`、Vitest は `03-test-plan-vitest.csv` を使用し、
 異なるテスト種別のケースを同じ CSV に混在させません。
+
+テスト設計フェーズは、承認確認を提示する前に**独立したレビュー用のサブエージェント**が
+`03-test-plan-review-checklist.md` に沿って検証します（詳細: `.cursor/rules/sdd-workflow.mdc`
+「独立レビュー」）。機械的に自動修正可能な指摘はその場で修正し、判断が必要な指摘のみ
+承認確認と一緒に人間に提示します。この独立レビューは人間の承認を代替しません。
 
 ## 工数レポート
 

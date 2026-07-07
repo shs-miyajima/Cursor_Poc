@@ -27,7 +27,7 @@ alwaysApply: true
 |---------|--------|-------------|
 | 1. 仕様整理 | `01-requirements.md`, `open-questions.md`, `effort-report.md`（見積） | `01-requirements.status` |
 | 2. 設計 | `02-design.md` | `02-design.status` |
-| 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時） | `03-test-plan.status` |
+| 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時）, `03-test-plan-review-checklist.md`（AI 独立レビュー結果） | `03-test-plan.status` |
 | 4. 実装・テスト | コード・テストコード, `04-completion-report.md` | — |
 
 `*.status` の値: `draft` | `approved` | `rejected`
@@ -88,12 +88,17 @@ phase: 01-requirements
 - 仕様を読み、不明点を `open-questions.md` に列挙して質問する
 - 回答を反映し `01-requirements.md` を確定案にする
 - Laravel 側とフロント（Blade / Vite / JS）の責務を明記する
+- バリデーション（§7）・受け入れ条件（§11）・非機能要件（§9）に一意な ID
+  （`VAL-xx` / `AC-xx` / `NFR-xx`）を付与する。ユースケース（§4 `UC-xx`）と合わせて、
+  テスト計画フェーズのトレーサビリティ（要件カバレッジ表）で参照する
 
 ## フェーズ 2: 設計
 
 - `01-requirements.status` が `approved` の場合のみ着手
 - Controller / Service / Model / Migration / Blade / Route / Job のクラス名・メソッド概要を記載
 - 実装コードは書かない。人間がレビューできる粒度にする
+- §6 影響範囲に、既存の画面・API・共通部品・テーブルへの波及を `IMPACT-xx` の ID 付きで洗い出す。
+  影響なしと判断した項目も、検討した上での判断であることが分かる理由を書く（未検討の放置禁止）
 
 ## フェーズ 3: テスト設計
 
@@ -118,6 +123,51 @@ phase: 01-requirements
   `03-test-plan.md` の「更新系の標準観点」に従う）
 - Playwright（E2E）を主、PHPUnit は Service 等の単体テスト、Vitest は JS 単体テストに限定
 - CSV 列形式は `docs/specs/_templates/03-test-plan.csv` のヘッダー行に従う
+- トレーサビリティ: `01-requirements.md` の UC / VAL / AC / NFR / 画面項目（§5.2）/ 権限（§8）の
+  全項目に対応する Test ID が存在することを「要件カバレッジ表」（`03-test-plan.md`）で確認する。
+  CSV の「出典」列には対応する要件側 ID を記載し、対応漏れがないことを承認依頼前に確認する
+- 非機能要件（NFR-xx）が E2E で検証困難な場合は、PHPUnit のケースにするか、要件カバレッジ表の
+  備考に「対応不可・理由・代替手段」を明記する（放置しない）
+- `02-design.md` §6 で「影響あり」とした項目（`IMPACT-xx`）に対応する回帰確認のテストケースを
+  `03-test-plan.md` の「回帰確認」で作成する
+- 期待結果は具体的な値・文言・件数・画面状態で記載し、「正しく」「適切に」「問題なく」等、
+  判定基準を含まない曖昧な表現を使わない（`03-test-plan.md` の「期待結果の書き方」参照）
+- 各テストケースは他のケースの実行結果・実行順序に依存しないこと。前提条件はケース単独で
+  再現可能な内容を記載し、共有データを使う場合はケース間で干渉しないようテストデータを分離する
+  （`03-test-plan.md` の「独立性・再現性の標準観点」参照）
+- Playwright は `fullyParallel: true` で実行されるため、単独実行の独立性だけでなく、
+  **他のケースと同時に実行されても干渉しない**ことを確認する（`03-test-plan.md` の
+  「並列実行安全性」、`.cursor/rules/testing-playwright.mdc` の「並列実行安全性」参照）
+
+### 独立レビュー（承認確認前に必須）
+
+`03-test-plan.md` と各 CSV を作成したら、**承認確認を提示する前に**、以下の手順で独立レビューを行う。
+
+0. **機械的 lint を先に実行する（自動修正可能な問題を先に除去する）**:
+   ```powershell
+   # テスト計画 CSV・カバレッジ表の静的検証
+   npm run lint:sdd -- <slug>
+   ```
+   lint で ERROR が出た場合は機械的に修正してから次へ進む。WARN はサブエージェントレビューに
+   持ち越して判断する（自動修正可能なものはその場で直す）。
+
+1. 作成した本人（同一会話・同一コンテキストの AI）ではなく、**独立したレビュー用のサブエージェント**
+   （会話コンテキストを引き継がない新規セッション、readonly）を起動する
+   （Cursor では Task ツール・`subagent_type: generalPurpose`・`readonly: true` を想定）
+2. レビュー対象として `01-requirements.md` / `02-design.md` / `03-test-plan.md` / 各 CSV のパスを渡し、
+   `docs/specs/_templates/03-test-plan-review-checklist.md` の全項目を検証させ、項目ごとに
+   ✓ / ✕ と理由を判定させる
+3. サブエージェントの指摘のうち、**機械的に自動修正可能なもの**
+   （カバレッジ表の空欄、曖昧な期待結果の言い換え、出典 ID の記載漏れ、CSV 粒度の分割漏れ等）は
+   メインの AI がその場で修正する
+4. 修正後、指摘が解消したかを再確認する（同じ観点を再度確認する。必要であればサブエージェントに
+   再レビューさせる）
+5. **業務ルールの解釈や仕様追加の要否など、判断が必要な指摘は自動修正せず**、承認確認の提示に
+   レビュー結果のサマリ（残った指摘事項とその理由）を含めて人間に判断を仰ぐ
+6. レビュー結果は `03-test-plan-review-checklist.md` に記入し、成果物として残す
+
+この独立レビューは人間の承認を代替しない。あくまで承認確認の質を上げるための事前チェックであり、
+「自己承認の禁止」（上記）の原則は変わらない。
 
 ## フェーズ 4: 実装・テスト
 
@@ -137,5 +187,11 @@ phase: 01-requirements
 
 - カバレッジ閾値に到達できない行がある場合は、テストを歪めて通すのではなく、
   理由を `03-test-plan.md` または PR に明記して許容する
+- **フェーズ 4 完了前に Test ID 突合チェックを実行する**:
+  ```powershell
+  # CSV とテストコードの Test ID が全件一致することを確認
+  npm run lint:sdd:testid -- <slug>
+  ```
+  ERROR（未実装ケースあり）が出た場合はテストを追加実装してから完了報告を作成する。
 - 完了時に `04-completion-report.md`（テンプレート: `_templates/04-completion-report.md`）を作成し、
   テスト実行結果・カバレッジ実績・エビデンスパス・基準未達の理由を記録して完了報告に含める

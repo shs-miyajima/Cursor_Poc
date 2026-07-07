@@ -70,6 +70,21 @@ docker compose exec app php artisan test
 docker compose exec app vendor/bin/phpunit --filter <TestClass>
 ```
 
+## Test ID アノテーション規約（突合チェックに必須）
+
+各テストメソッドの直前の docコメントに、対応する CSV の Test ID を記載する。
+この規約により `node scripts/sdd-lint-testid.mjs <slug>` でテスト実装の漏れを機械検出できる。
+
+```php
+/**
+ * PHPUnit-inp-001: 理由 任意入力なし
+ */
+public function test_理由が空でも申請が作成される(): void
+```
+
+- docコメント形式: `* <Test ID>: <説明>`（Test ID は `PHPUnit-{category}-{nnn}` 形式）
+- 1 つのテストメソッドに対して 1 行のアノテーション
+
 ## SDD 連携
 
 - 実装判断は `docs/specs/<slug>/` を正とする

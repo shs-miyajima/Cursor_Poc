@@ -49,6 +49,19 @@ npx vitest run <path>  # 個別実行
 - API ラッパーは URL / payload の正常系と、エラーを呼び出し側へ伝播するケースを確認する
 - 複数ステータス・複数表示条件は、期待するラベルや CSS クラスが異なる場合は個別ケースに分ける
 
+## Test ID アノテーション規約（突合チェックに必須）
+
+各 `it(...)` / `test(...)` の直前行に、対応する CSV の Test ID をコメントする。
+この規約により `node scripts/sdd-lint-testid.mjs <slug>` でテスト実装の漏れを機械検出できる。
+
+```javascript
+// Vitest-other-001: 一覧 API URL 組み立て OK
+it('一覧取得で mock_user_id と search がクエリに付与される', async () => {
+```
+
+- コメント形式: `// <Test ID>: <説明>`（Test ID は `Vitest-{category}-{nnn}` 形式）
+- 1 つの `it(...)` に対して 1 行のアノテーション
+
 ## SDD 連携
 
 - フェーズ 3 で Vitest 対象がある場合、`03-test-plan.md` §6 に記載
