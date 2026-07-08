@@ -29,7 +29,7 @@ docs/specs/
 | フェーズ | 成果物 | 承認ファイル |
 |---------|--------|-------------|
 | 1. 仕様整理 | `01-requirements.md` | `01-requirements.status` |
-| 2. 設計 | `02-design.md` | `02-design.status` |
+| 2. 設計 | `02-design.md`, `02-design-review-checklist.md`（AI 独立レビュー結果） | `02-design.status` |
 | 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv` | `03-test-plan.status` |
 | 4. 実装 | コード・テスト | — |
 
@@ -40,6 +40,15 @@ status ファイルは 1 行目に状態、2 行目以降に `date:`（更新日
 各フェーズで承認（`approved`）を得てから次へ進みます。承認できるのは人間のみで、
 エージェントは直近のユーザー発言に明示的な承認がある場合に限り `approved` へ更新します。
 承認・差戻しのたびに `changelog.md` へ記録します。
+
+フェーズ 2（設計）では、承認確認の前に読み取り専用サブエージェントによる
+**AI 独立レビュー**を行い、結果を `02-design-review-checklist.md` に残します
+（人間の承認を代替するものではありません）。
+
+各フェーズの承認直後には、成果物と `*.status`・`changelog.md` をまとめて
+git commit します（**フェーズコミット**。メッセージ形式:
+`[SDD][<slug>] フェーズN(<フェーズ名>) approved`）。詳細は
+`.cursor/rules/sdd-workflow.mdc`「Git 運用（フェーズコミット）」を参照してください。
 
 ## 機能 ID について
 
