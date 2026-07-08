@@ -181,9 +181,15 @@ phase: 01-requirements
 
 ### 独立レビュー（承認確認前に必須）
 
-`03-test-plan.md` と各 CSV を作成したら、**承認確認を提示する前に**、フェーズ 2 と同様の手順で
-独立レビューを行う。
+`03-test-plan.md` と各 CSV を作成したら、**承認確認を提示する前に**、以下の手順で独立レビューを行う。
 
+0. **機械的 lint を先に実行する（自動修正可能な問題を先に除去する）**:
+   ```powershell
+   # テスト計画 CSV・カバレッジ表の静的検証
+   npm run lint:sdd -- <slug>
+   ```
+   lint で ERROR が出た場合は機械的に修正してから次へ進む。WARN はサブエージェントレビューに
+   持ち越して判断する（自動修正可能なものはその場で直す）。
 1. **専用のレビューサブエージェント `sdd-plan-reviewer`**（定義:
    `.cursor/agents/sdd-plan-reviewer.md`、readonly、会話コンテキストを引き継がない新規セッション）
    を起動する
@@ -213,8 +219,13 @@ phase: 01-requirements
 | Vitest | 計画 CSV の全ケースを実装し全件成功 |
 | Playwright | `03-test-plan.csv` の全ケースを実装し全件成功 |
 
-- 完了報告の前に、各 CSV の全 Test ID がテストコードに実装されていることを突合し、
-  結果（計画件数・実装件数・差分の理由）を `04-completion-report.md` に記録する
+- **完了報告の前に Test ID 突合チェックを実行する**:
+  ```powershell
+  # CSV とテストコードの Test ID が全件一致することを確認
+  npm run lint:sdd:testid -- <slug>
+  ```
+  ERROR（未実装ケースあり）が出た場合はテストを追加実装してから完了報告を作成する。
+  結果（計画件数・実装件数・差分の理由）は `04-completion-report.md` に記録する
 - **E2E が環境制約で実行不能な場合**（`.cursor/rules/testing-playwright.mdc` の「注意」参照）は、
   テストコードの作成までを完了条件とし、`04-completion-report.md` に「未実行・理由・
   環境解決後に実行する」旨を明記して人間に報告する。実行できたことにしない

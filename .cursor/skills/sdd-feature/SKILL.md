@@ -65,6 +65,7 @@ description: >-
 - [ ] `02-design.md` §5 の `IMPACT-xx`（影響あり）に対応する回帰確認ケースを作成する
 - [ ] 期待結果が曖昧な表現（「正しく」「適切に」等）になっていないか確認する
 - [ ] 各テストケースが他ケースの実行結果・順序に依存せず、並列実行でも干渉しないか確認する
+- [ ] **承認確認を提示する前に** `npm run lint:sdd -- <slug>` を実行し、ERROR をすべて修正する
 - [ ] **承認確認を提示する前に**、専用レビューサブエージェント `sdd-plan-reviewer`
       （定義: `.cursor/agents/sdd-plan-reviewer.md`、readonly、新規セッション）を起動し、
       `03-test-plan-review-checklist.md` の全項目を検証させる
@@ -83,7 +84,8 @@ description: >-
 - [ ] Vitest（JS 単体、該当時）
 - [ ] Playwright E2E（`tests/e2e_tests/`）
 - [ ] 失敗時は原因分析 → 修正（最大 3 回）→ エスカレーション
-- [ ] 各 CSV の全 Test ID がテストコードに実装されていることを突合する（差分は理由を明記）
+- [ ] `npm run lint:sdd:testid -- <slug>` を実行し、CSV とテストコードの Test ID が全件一致することを
+      確認する（ERROR = 未実装ケースあり → テスト追加後に再実行して 0 件を確認してから次へ進む）
 - [ ] E2E が環境制約で実行不能な場合は「未実行・理由・環境解決後に実行」を完了報告に明記する（実行できたことにしない）
 - [ ] `04-completion-report.md` を作成（テスト実行結果・Test ID 突合・エビデンスパス・基準未達の理由）
 - [ ] 完了時に `effort-report.md` の「§2 実績記録」「§3 削減効果」を確定し、完了報告に含める
@@ -141,4 +143,9 @@ npx playwright test tests/test_<name>.spec.ts
 - 操作: rejected
 - 理由: ○○の責務分界が不明
 - 対応: 02-design.md の §3 を修正
+
+## YYYY-MM-DD
+- フェーズ: 仕様整理
+- 操作: reopened
+- 理由: 承認後に○○の要件が変更になったため draft に戻して差分承認
 ```

@@ -6,7 +6,9 @@
         "build": "vite build",
         "dev": "vite",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "lint:sdd": "node scripts/sdd-lint-plan.mjs",
+        "lint:sdd:testid": "node scripts/sdd-lint-testid.mjs"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
