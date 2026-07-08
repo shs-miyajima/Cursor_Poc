@@ -22,20 +22,88 @@ globs:
 
 ## 実行
 
-```bash
+```powershell
 cd tests/e2e_tests
-npx playwright test
-npx playwright test tests/test_<name>.spec.ts
+# エビデンス（test-results / playwright-report）を機能単位のフォルダに出力するため
+# FEATURE に docs/specs の slug を指定して実行する（未指定時は all フォルダ）
+$env:FEATURE = 'survey-system'; npx playwright test tests/test_<name>.spec.ts
 ```
 
 - Laravel 標準認証のため **並列実行可**（`playwright.config.ts` の `workers` は環境に応じて設定）
 - テスト前に `run_debug.bat verify` で Laravel（Docker、http://localhost:8000）の起動を確認する
+- **フロントエンド資産は `globalSetup`（`tests/e2e_tests/global-setup.ts`）が実行のたびに
+  自動で `npm run build` する**。`resources/js` を変更した後に手動でビルドし直す必要はない
+  （ビルド未反映のまま実行して原因不明の失敗になる事故を防ぐための仕組み）
+
+## DB 状態（実行前の初期化）
+
+E2E テストはユーザー作成・アンケート回答等で DB を変更するため、実行を繰り返すとデータが蓄積する。
+
+- **E2E 実行前に DB を初期化する**:
+
+```bash
+docker compose exec app php artisan migrate:fresh --seed
+```
+
+- テストコードは **Seeder 投入直後の状態を前提** に書く。過去の実行で蓄積したデータや、
+  他のテストが作成したデータに依存しない（依存が必要な場合はテスト内で作成する）
+- 件数・0 件表示・一覧順序を検証するケースは、初期化直後の Seeder データを基準にする
+
+### Seeder-first（開発 DB は使い捨て）
+
+- 開発 DB は `migrate:fresh --seed` でいつでも再現できる状態を保つ。**消えて困るデータを DB に置かない**
+- 手動確認で繰り返し使いたいデータ（特定の状態の申請・ユーザー等）は、手入力ではなく
+  **Seeder に追加** する。これにより初期化＝「いつものデータの復元」になる
+- どうしても消したくない一時データがある場合のみ、初期化前に `pg_dump` 等でバックアップを取る
+
+## セレクタ
+
+- E2E のセレクタは `data-testid` を優先する（CSS クラス・表示文言・DOM 構造に依存しない）
+- 実装時の `data-testid` 付与規約は `.cursor/rules/frontend-vite-tailwind.mdc` を参照
+
+## 並列実行安全性（`fullyParallel: true`）
+
+`playwright.config.ts` は `fullyParallel: true` のため、複数ケースが同時に実行される。
+「他のケースを実行しなくても単独で成立する」だけでなく、**他のケースと同時に実行されても
+干渉しない**ように書く。
+
+- Seeder 投入直後の共有データ（一覧の初期件数・特定ユーザー等）を**更新・削除する**ケースは、
+  そのケース専用のレコードをテスト内で新規作成してから操作する（既存の共有レコードを書き換えない）
+- 件数・並び順など共有データを**参照するだけ**のケースは、他のケースがそのデータを更新しない前提
+  （上記の徹底）が成立していれば問題ない
+- 採番・重複チェック等、並列実行で競合しうる処理は `03-test-plan.md` の
+  「同時実行・競合」「並列実行安全性」の観点で個別に検討する
+
+## フレーキーテスト対策
+
+- 固定時間の待機（`page.waitForTimeout()`）に頼らない。要素の出現・状態変化・
+  ネットワーク完了など、**待つべき対象を明示した待機**（ロケータの自動待機、
+  `waitForResponse` 等）を使う
+- 非同期処理（axios 通信後の DOM 更新等）の完了を、タイムアウトではなく
+  結果として現れる DOM の状態（`data-testid` 要素の出現・文言変化）で判定する
+- CI の `retries: 2` はネットワーク等の偶発的な失敗を吸収するためのものであり、
+  **実装や設計の不備をリトライで隠さない**。同じケースが繰り返し失敗する場合は
+  フレーキーの原因（待機不足・並列実行時のデータ競合等）を分析してから修正する
 
 ## テスト設計
 
 - SDD フェーズ 3 の `03-test-plan.csv` がケースの正本
 - カテゴリ接尾辞: inp / dsp / auth / evt / trn / dyn / other
 - 正常系・異常系・境界値・権限・派生パターンを網羅
+
+## Test ID アノテーション規約（突合チェックに必須）
+
+各 `test(...)` の直前行に、対応する CSV の Test ID を以下の形式でコメントする。
+この規約により `node scripts/sdd-lint-testid.mjs <slug>` でテスト実装の漏れを機械検出できる。
+
+```typescript
+// E2E-001: ログイン画面が表示される
+test('ログイン画面が表示される', async ({ page }) => {
+```
+
+- コメント形式: `// <Test ID>: <説明>`（Test ID は `E2E-{nnn}` 形式）
+- 1 つの `test(...)` に対して 1 行のアノテーション（複数の Test ID を 1 テストに紐付けない）
+- `describe` ブロック内のテストにも同様に付ける
 
 ## SDD 連携
 
@@ -44,9 +112,10 @@ npx playwright test tests/test_<name>.spec.ts
 
 ## 注意
 
-- **環境制約（2026-07 時点・未解決）**: 社内 SSL で Playwright ブラウザをダウンロードできず、
-  システム Chrome / Edge もリモートデバッグ付き起動がクラッシュするため **E2E は実行不能**。
-  テストコードは作成し、実行は環境解決後に行う（IT 部門に CA 証明書 or リモートデバッグ許可を相談）
+- **環境制約（2026-07 解決済み）**: 社内 SSL 復号プロキシにより Node.js 標準ではブラウザを
+  ダウンロードできない。ユーザー環境変数 `NODE_OPTIONS=--use-system-ca` を設定して
+  Windows 証明書ストアを参照させ、`npx playwright install chromium` で Playwright 版
+  Chromium を使用する（`channel: 'msedge'` は EDR によりクラッシュするため使用しない）
 - 失敗時は `tests/e2e_tests/test-results/` のスクリーンショット・trace を確認してから原因を分析する（**推測で修正しない**）
 - 連続失敗時は原因を分析してから再実行する（最大 3 イテレーション）
 - HTML レポートは自動では開かない。必要時は `npx playwright show-report` で確認する
