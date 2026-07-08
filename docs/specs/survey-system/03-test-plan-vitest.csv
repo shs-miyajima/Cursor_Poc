@@ -1,1 +1,10 @@
 Test ID,カテゴリ,対象(項目/機能),前提条件,入力/操作,手順,期待結果,備考,出典
+VT-001-dyn,dyn,surveyFormState 設問追加,設問 1 問の状態オブジェクト,addQuestion を実行,状態を更新,設問が 2 問になり sort_order が 1・2 の連番になる,,UC-19
+VT-002-dyn,dyn,surveyFormState 設問削除,設問 3 問の状態オブジェクト,2 問目を removeQuestion,状態を更新,設問が 2 問になり残りの sort_order が 1・2 に振り直される,,UC-19
+VT-003-dyn,dyn,surveyFormState 形式変更(選択式→自由記述),単一選択(選択肢 3 個)の設問,type を text に変更,状態を更新,選択肢欄の表示判定が false になる,,VAL-24
+VT-004-dyn,dyn,surveyFormState 形式変更(自由記述→複数選択),自由記述の設問,type を multiple に変更,状態を更新,選択肢欄の表示判定が true になり選択肢が初期 2 個で用意される,,VAL-24
+VT-005-dyn,dyn,surveyFormState 選択肢追加・削除,選択肢 2 個の設問,addOption 2 回→removeOption 1 回,状態を更新,選択肢が 3 個になり sort_order が連番になる,,VAL-24
+VT-006-dyn,dyn,chartDataTransformer(縦棒グラフ),選択肢別件数(満足2/普通1/不満0)の集計 JSON,type=bar で変換,変換関数を実行,labels が 3 選択肢・data が [2,1,0]・chart type が bar の設定が返る,,AC-26
+VT-007-dyn,dyn,chartDataTransformer(円グラフ),同上の集計 JSON,type=pie で変換,変換関数を実行,同じ labels・data で chart type が pie の設定が返る,,UC-26 AC-27
+VT-008-dyn,dyn,chartDataTransformer(0件),全選択肢 0 件の集計 JSON,type=bar で変換,変換関数を実行,data が [0,0,0] で返り例外が発生しない,回答 0 件境界,AC-26
+VT-009-dyn,dyn,chartDataTransformer(自由記述),type=text の設問を含む集計 JSON,変換対象の判定,変換関数を実行,自由記述設問はグラフ変換対象外と判定され answers のテキスト配列がそのまま返る,,UC-24

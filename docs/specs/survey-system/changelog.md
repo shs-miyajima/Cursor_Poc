@@ -4,6 +4,17 @@
 
 ## 2026-07-08
 
+- フェーズ: テスト設計
+- 操作: approved
+- 内容: 03-test-plan.md + CSV 3 種（E2E 192 件・PHPUnit 43 件・Vitest 9 件）。
+  機械的 lint（ERROR 0 / WARN 0）と独立レビュー（指摘 9 件: 機械修正 7 件反映、
+  要判断 2 件は対応案を承認確認に明記）を経て承認。要判断 2 件の確定方針:
+  (1) 締切自動終了 E2E は締切=現在+1 分・表示変化ポーリング（上限 90 秒）方式
+  (2) グラフ描画検証は canvas の検証用データ属性 + 回答件数 DOM + Vitest で担保
+  （実装時に canvas へ検証用属性を付与。画面仕様への影響なしのため 02-design 差分承認は不要）
+
+## 2026-07-08
+
 - フェーズ: 設計
 - 操作: approved
 - 内容: 02-design.md（Controller 11・Service 7・Model/Enum 12・Form Request 11・migration 8 + seeder・

@@ -1,1 +1,44 @@
 Test ID,カテゴリ,対象(項目/機能),前提条件,入力/操作,手順,期待結果,備考,出典
+PU-001-auth,auth,AuthService::attempt(管理者正常),企業(code=c1)と管理者(admin@x.jp/pass12345)を作成,c1・admin@x.jp・pass12345,attempt() を実行,該当 User モデルが返る,,UC-01
+PU-002-auth,auth,AuthService::attempt(パスワード不一致),企業と管理者を作成,正しいコード・メールと誤ったパスワード,attempt() を実行,null が返る,,VAL-01
+PU-003-auth,auth,AuthService::attempt(存在しない企業コード),企業と管理者を作成,未登録の企業コード wrong99,attempt() を実行,null が返る,,VAL-01
+PU-004-auth,auth,AuthService::attempt(削除済み企業),企業と管理者を作成後に企業を論理削除,削除済み企業のコード・正しいメール・パスワード,attempt() を実行,null が返る,,AC-06 VAL-01
+PU-005-auth,auth,AuthService::attempt(削除済みユーザー),企業とユーザーを作成後にユーザーを論理削除,正しいコード・メール・パスワード,attempt() を実行,null が返る,,AC-14 VAL-01
+PU-006-auth,auth,AuthService::attempt(スーパーユーザー),SU(company_id NULL)を作成,企業コード null・SU のメール・パスワード,attempt() を実行,SU の User モデルが返る,,UC-02
+PU-007-auth,auth,AuthService::attempt(コード空欄で一般ユーザー),企業と一般ユーザーを作成,企業コード null・一般ユーザーのメール・パスワード,attempt() を実行,null が返る(SU 検索は company_id NULL のみ対象),,VAL-01
+PU-008-auth,auth,AuthService::attempt(メール大文字),企業とユーザー(taro@x.jp)を作成,メールに TARO@X.JP を指定,attempt() を実行,該当 User モデルが返る(小文字正規化で照合),,AC-33
+PU-009-auth,auth,AuthService::homeRouteFor(3ロール),SU・管理者・ユーザーを作成,各 User を渡す,homeRouteFor() を実行,SU=全体ビュー・管理者=ダッシュボード・ユーザー=回答者一覧のルート名が返る,,UC-01 UC-02
+PU-010-other,other,パスワードのハッシュ保存,なし,password=plain12345 で User を作成,DB の password カラムを取得,平文と異なる bcrypt ハッシュが保存され Hash::check が true になる,,NFR-01
+PU-011-other,other,email 小文字化ミューテータ,なし,email=Taro@X.JP で User を作成,DB の email カラムを取得,taro@x.jp が保存されている,,AC-33
+PU-012-evt,evt,CSV validateCsv(全行新規),企業を作成(既存ユーザーなし),正常 3 行の CSV,validateCsv() を実行,errors が 0 件・rows 3 件すべて区分 new,,AC-17
+PU-013-evt,evt,CSV validateCsv(更新判定),企業に既存ユーザー(csv1@x.jp)を作成,csv1@x.jp の行を含む CSV,validateCsv() を実行,該当行の区分が update で既存 user_id が設定される,,UC-13a AC-31
+PU-014-evt,evt,CSV validateCsv(大文字メール更新判定),企業に既存ユーザー(taro@x.jp)を作成,メール列 TARO@X.JP の CSV,validateCsv() を実行,該当行の区分が update になる,,AC-33
+PU-015-evt,evt,CSV validateCsv(複数エラー全件),企業を作成,3 行目メール形式不正・5 行目部署未登録の CSV,validateCsv() を実行,errors に 3 行目と 5 行目の 2 件が行番号・項目名・理由付きで含まれる,1 件目で中断しない,UC-13b VAL-18
+PU-016-evt,evt,CSV validateCsv(管理者メール一致),企業に管理者(admin@x.jp)を作成,admin@x.jp の行を含む CSV,validateCsv() を実行,該当行がエラー(管理者は取込不可)として errors に含まれる,,VAL-18
+PU-017-evt,evt,CSV validateCsv(部署の大小文字照合),企業に部署「営業G」を作成,部署列「営業g」の CSV,validateCsv() を実行,エラーにならず行の department_id が「営業G」の id になる,全角半角は区別する,VAL-18
+PU-018-evt,evt,CSV validateCsv(501行),企業を作成,データ行 501 行の CSV,validateCsv() を実行,VAL-17 のエラー(500 行以内)が返り行検証に進まない,,VAL-17
+PU-019-evt,evt,CSV commit(新規+更新+空欄上書き),企業に既存ユーザー(氏名=旧・部署あり)を作成,新規 1 行+既存メールで部署空欄の更新 1 行,commit() を実行,created=1・updated=1 が返り既存ユーザーの氏名が更新され department_id が null になる,,AC-32
+PU-020-evt,evt,CSV commit(パスワードハッシュ),企業を作成,新規 1 行の CSV を validate→commit,DB の password カラムを確認,平文ではなくハッシュが保存され Hash::check が true,セッション保持時点でハッシュ化済み,NFR-01
+PU-021-evt,evt,SurveyService::publish(過去締切),下書きアンケート(締切=過去日時)を作成,締切を過去日時のまま指定,publish() を実行,ValidationException(VAL-26)が発生し status が draft のまま,,VAL-26
+PU-022-evt,evt,SurveyService::update(公開後の設問変更),公開アンケートを作成,設問構成を変更する data,update() を実行,ValidationException(VAL-27)が発生し設問が変更されない,,VAL-27
+PU-023-evt,evt,SurveyService::update(下書きの設問洗い替え),下書きアンケート(設問 2 問)を作成,設問 1 問に差し替える data,update() を実行,questions が 1 件になり内容が新しい設問文になる,,UC-20
+PU-024-other,other,Survey::effectiveStatus(締切超過),published・締切=1 分前のアンケートを作成,なし,effectiveStatus() を取得,closed が返る(DB の status は published のまま),,UC-22 AC-22
+PU-025-other,other,Survey::effectiveStatus(締切未来),published・締切=未来のアンケートを作成,なし,effectiveStatus() を取得,published が返る,,UC-22
+PU-026-other,other,Survey::effectiveStatus(締切なし),published・締切 null のアンケートを作成,なし,effectiveStatus() を取得,published が返る(無期限),締切なしの分岐値,UC-22
+PU-027-evt,evt,SurveyAnswerService::submit(初回),公開アンケート(単一選択)とユーザーを作成,選択肢 1 つを指定,submit() を実行,survey_responses 1 件・survey_answers 1 件が作成され submitted_at が設定される,,UC-27
+PU-028-evt,evt,SurveyAnswerService::submit(修正),回答済みの公開アンケートを作成,別の選択肢を指定,再度 submit() を実行,survey_responses は 1 件のまま answers が新しい選択肢 1 件に洗い替えられる,,UC-28 AC-25
+PU-029-evt,evt,SurveyAnswerService::submit(終了済み),closed のアンケートとユーザーを作成,任意の選択肢を指定,submit() を実行,ValidationException(VAL-30)が発生し回答が保存されない,,VAL-30
+PU-030-evt,evt,SurveyResultService(絞り込みなし),回答 3 件(満足2・普通1)のアンケートを作成,フィルタなし,aggregate() を実行,total_responses=3・選択肢別件数が 満足=2/普通=1/不満=0 で返る,,UC-24 AC-26
+PU-031-evt,evt,SurveyResultService(部署絞り込み),営業部 1 名・総務部 1 名の回答を作成,department_id=営業部,aggregate() を実行,total_responses=1 で営業部ユーザーの回答のみ集計される,,UC-25 AC-28
+PU-032-evt,evt,SurveyResultService(属性NULL・絞り込み時除外),部署未設定ユーザーの回答 1 件と部署「営業部」を作成,department_id=営業部,aggregate() を実行,total_responses=0(部署未設定の回答は集計対象外),対は PU-042,AC-28
+PU-033-evt,evt,SurveyResultService(削除済みユーザー),回答後にユーザーを論理削除,フィルタなし,aggregate() を実行,削除済みユーザーの回答が total と件数に含まれる,,AC-14
+PU-034-other,other,年代変換(20代の境界),基準日時点で 20 歳ちょうど・29 歳・30 歳・19 歳のユーザー回答を作成,年代=20 代,aggregate() を実行,20 歳と 29 歳が集計に含まれ 30 歳・19 歳は含まれない,誕生日当日を含む,AC-28
+PU-035-other,other,年代変換(〜19歳の区分),19 歳と 20 歳のユーザー回答を作成,年代=〜19 歳,aggregate() を実行,total_responses=1(19 歳のみ含まれ 20 歳は含まれない),対は PU-043,AC-28
+PU-036-other,other,集計性能(1000件),回答 1000 件のアンケートを factory で作成,フィルタなし,aggregate() を実行し実行時間を計測,3 秒以内に完了し total_responses=1000 が返る,NFR-06 の代替検証(E2E ではデータ量の準備が非現実的なため),NFR-06
+PU-037-evt,evt,SurveyResultService(回答日時範囲),updated_at が本日と 10 日前の回答 2 件を作成,date_from=3 日前・date_to=本日,aggregate() を実行,total_responses=1(本日の回答のみ)になる,最終更新日時基準,AC-28
+PU-038-evt,evt,SurveyResultService(入社年月範囲),入社 2015-04 と 2020-04 のユーザー回答を作成,hired_from=2019-01・hired_to=2021-12,aggregate() を実行,total_responses=1(2020-04 のみ)になる,,AC-28
+PU-039-evt,evt,SurveyResultService(性別絞り込み),男性 1 名・女性 1 名の回答を作成,gender=female,aggregate() を実行,total_responses=1(女性のみ)になる,DB 保存値は key(female),AC-28
+PU-040-other,other,Gender::fromLabel(正常4値),なし,「男性」「女性」「その他」「未回答」を変換,fromLabel() を実行,male/female/other/no_answer の enum が返る,,VAL-18
+PU-041-other,other,Gender::fromLabel(不正値),なし,「男」を変換,fromLabel() を実行,null が返る(CSV ではエラー行の判定に使う),,VAL-18
+PU-042-evt,evt,SurveyResultService(属性NULL・絞り込みなしで包含),部署未設定ユーザーの回答 1 件を作成,フィルタなし,aggregate() を実行,total_responses=1(部署未設定の回答が含まれる),対は PU-032,AC-28
+PU-043-other,other,年代変換(60代〜の区分),60 歳と 59 歳のユーザー回答を作成,年代=60 代〜,aggregate() を実行,total_responses=1(60 歳のみ含まれ 59 歳は含まれない),対は PU-035,AC-28
