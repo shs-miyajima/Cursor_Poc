@@ -6,7 +6,7 @@
 |------|-------------|------------|--------------|------|
 | （例）example-feature | （機能名） | TBD | tests/test_example.spec.ts | |
 | sample-crud | サンプル CRUD（トップ画面） | TBD | tests/test_sample_crud.spec.ts | **spec フォルダ・spec ファイルとも未作成**（SDD 成果物なし）。実装着手時に `_templates/` からフォルダを作成すること。E2E は環境制約により実行保留 |
-| survey-system | アンケート作成・回答・管理システム | TBD | （E2E 実装後に記載） | フェーズ 1 承認済み・フェーズ 2（設計）進行中 |
+| survey-system | アンケート作成・回答・管理システム | TBD | （E2E 実装後に記載） | フェーズ 2 承認済み・フェーズ 3（テスト設計）進行中 |
 
 ## 追記ルール
 
