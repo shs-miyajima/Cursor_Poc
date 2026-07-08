@@ -1,0 +1,23 @@
+# feature_id: TBD
+display_name: アンケート作成・回答・管理システム
+slug: survey-system
+status: draft
+created: 2026-07-08
+updated: 2026-07-08
+
+# 関連パス（実装開始後に追記）
+laravel:
+  controllers: []
+  services: []
+  models: []
+  views: []
+frontend:
+  js_files: []
+e2e:
+  spec_files: []
+vitest:
+  test_files: []
+
+# 参照元（正本は specs 内の Markdown）
+source_documents:
+  - チャット入力（2026-07-08 新システム概要・権限・ロール別機能）
