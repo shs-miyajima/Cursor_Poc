@@ -1,0 +1,23 @@
+﻿node.exe : npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help
+ npmrc` for supported config options.
+発生場所 行:1 文字:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...config options.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+> lint:sdd:testid
+> node scripts/sdd-lint-testid.mjs survey-system
+
+
+笏笏 E2E・・laywright・・笏笏
+  笨・CSV 192 莉ｶ / 繧ｳ繝ｼ繝・192 莉ｶ 窶・荳閾ｴ
+
+笏笏 PHPUnit 笏笏
+  笨・CSV 43 莉ｶ / 繧ｳ繝ｼ繝・43 莉ｶ 窶・荳閾ｴ
+
+笏笏 Vitest 笏笏
+  笨・CSV 9 莉ｶ / 繧ｳ繝ｼ繝・9 莉ｶ 窶・荳閾ｴ
+
+[survey-system] 遯∝粋邨先棡: ERROR 0 莉ｶ / WARN 0 莉ｶ

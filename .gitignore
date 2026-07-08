@@ -3,6 +3,8 @@
 /logs/*
 !/logs/**/.gitkeep
 /tests/e2e_tests/node_modules
+/tests/e2e_tests/test-results
+/tests/e2e_tests/playwright-report
 .DS_Store
 .env
 .env.backup

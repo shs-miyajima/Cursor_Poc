@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\Gender;
+use App\Enums\UserRole;
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -30,7 +33,28 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'company_id' => Company::factory(),
+            'role' => UserRole::User,
+            'department_id' => null,
+            'gender' => Gender::NoAnswer,
+            'birth_date' => null,
+            'hired_month' => null,
         ];
+    }
+
+    public function superuser(): static
+    {
+        return $this->state(fn () => [
+            'role' => UserRole::Superuser,
+            'company_id' => null,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn () => [
+            'role' => UserRole::Admin,
+        ]);
     }
 
     /**

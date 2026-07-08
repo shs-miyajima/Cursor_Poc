@@ -1,0 +1,67 @@
+﻿
+   PASS  Tests\Unit\Enums\GenderTest
+  笨・from label returns enum for valid labels                             0.01s  
+  笨・from label returns null for invalid label
+
+   PASS  Tests\Unit\ExampleTest
+  笨・that true is true                                                    0.01s  
+
+   PASS  Tests\Feature\ExampleTest
+  笨・the application returns a successful response                        0.34s  
+
+   PASS  Tests\Feature\Models\UserModelTest
+  笨・password is stored as bcrypt hash                                    0.71s  
+  笨・email is normalized to lowercase                                     0.13s  
+
+   PASS  Tests\Feature\Services\AuthServiceTest
+  笨・attempt returns admin user with valid credentials                    0.15s  
+  笨・attempt returns null for wrong password                              0.14s  
+  笨・attempt returns null for unknown company code                        0.13s  
+  笨・attempt returns null for deleted company                             0.14s  
+  笨・attempt returns null for deleted user                                0.13s  
+  笨・attempt returns superuser when company code is null                  0.13s  
+  笨・attempt returns null for regular user without company code           0.14s  
+  笨・attempt normalizes email to lowercase                                0.13s  
+  笨・home route for each role                                             0.13s  
+
+   PASS  Tests\Feature\Services\SurveyAnswerServiceTest
+  笨・submit creates response and answers                                  0.26s  
+  笨・submit replaces answers on resubmission                              0.14s  
+  笨・submit rejects closed survey                                         0.14s  
+
+   PASS  Tests\Feature\Services\SurveyResultServiceTest
+  笨・aggregate without filters                                            0.19s  
+  笨・aggregate filters by department                                      0.17s  
+  笨・aggregate excludes null attribute when filtered                      0.15s  
+  笨・aggregate includes null attribute without filter                     0.14s  
+  笨・aggregate includes deleted users responses                           0.14s  
+  笨・aggregate age group 20s boundaries                                   0.16s  
+  笨・aggregate age group under20                                          0.15s  
+  笨・aggregate age group 60plus                                           0.16s  
+  笨・aggregate filters by response date range                             0.15s  
+  笨・aggregate filters by hired month range                               0.15s  
+  笨・aggregate filters by gender                                          0.15s  
+  笨・aggregate performance with 1000 responses                            1.36s  
+
+   PASS  Tests\Feature\Services\SurveyServiceTest
+  笨・publish rejects past deadline                                        0.16s  
+  笨・update rejects question changes for published survey                 0.14s  
+  笨・update replaces questions for draft survey                           0.34s  
+  笨・effective status is closed after deadline                            0.14s  
+  笨・effective status is published before deadline                        0.15s  
+  笨・effective status is published without deadline                       0.15s  
+
+   PASS  Tests\Feature\Services\UserCsvImportServiceTest
+  笨・validate csv all new rows                                            0.19s  
+  笨・validate csv detects update row                                      0.14s  
+  笨・validate csv matches existing user case insensitively                0.14s  
+  笨・validate csv collects all errors without stopping                    0.15s  
+  笨・validate csv rejects admin email                                     0.13s  
+  笨・validate csv matches department case insensitively                   0.13s  
+  笨・validate csv rejects more than 500 rows                              0.13s  
+  笨・commit creates and updates with blank overwrite                      0.14s  
+  笨・commit stores hashed password                                        0.13s  
+
+  Tests:    45 passed (110 assertions)
+  Duration: 8.81s
+

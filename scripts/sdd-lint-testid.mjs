@@ -26,8 +26,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-// Test ID のパターン: <Prefix>-<category>-<nnn>
-const TEST_ID_RE = /\b(E2E|PHPUnit|Vitest)-[a-zA-Z]+-\d+\b/g;
+// Test ID のパターン: <Prefix>-<nnn>-<category>（例: E2E-001-trn / PU-001-auth / VT-001-dyn）
+const TEST_ID_RE = /\b(E2E|PU|VT)-\d+-[a-zA-Z]+\b/g;
 
 // ----- ファイル探索 -----
 
@@ -152,8 +152,8 @@ function main() {
   // --- 突合チェック ---
   const checks = [
     { label: 'E2E（Playwright）',  csvIds: csvE2E,     codeIds: codeE2E,     prefix: 'E2E' },
-    { label: 'PHPUnit',            csvIds: csvPHPUnit,  codeIds: codePHPUnit, prefix: 'PHPUnit' },
-    { label: 'Vitest',             csvIds: csvVitest,   codeIds: codeVitest,  prefix: 'Vitest' },
+    { label: 'PHPUnit',            csvIds: csvPHPUnit,  codeIds: codePHPUnit, prefix: 'PU' },
+    { label: 'Vitest',             csvIds: csvVitest,   codeIds: codeVitest,  prefix: 'VT' },
   ];
 
   for (const { label, csvIds, codeIds, prefix } of checks) {
