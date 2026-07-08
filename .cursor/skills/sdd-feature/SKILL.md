@@ -8,6 +8,8 @@ description: >-
 
 # 仕様駆動開発 — 機能追加
 
+> 手順の正本は `.cursor/rules/sdd-workflow.mdc`。本 Skill と食い違う場合はルールを優先する。
+
 ## 開始手順
 
 1. `docs/specs/_templates/` を `docs/specs/<slug>/` にコピー
@@ -23,6 +25,8 @@ description: >-
 - [ ] `effort-report.md` の「§1 人手想定工数」にフェーズ別見積を記入（根拠つき）
 - [ ] 不明点を `open-questions.md` に記載し、ユーザーに質問
 - [ ] Laravel / フロント（Blade / Vite / JS）の責務分界を記載
+- [ ] バリデーション（§7: VAL-xx）・受け入れ条件（§11: AC-xx）・非機能要件（§9: NFR-xx）に一意な ID を付与
+- [ ] テンプレート §13「承認依頼前セルフチェック」を全項目確認
 - [ ] 確定後、ユーザー承認を得て `01-requirements.status` を `approved` に
 
 **停止**: 承認までフェーズ 2 に進まない
@@ -35,10 +39,10 @@ description: >-
   - メソッド概要（シグネチャレベル）
   - DB 変更（migration）
   - 画面・ルート・フロント（Blade / JS）
-- [ ] §5 影響範囲に、既存の画面・API・共通部品・テーブルへの波及を洗い出す
+- [ ] §5 影響範囲に、既存の画面・API・共通部品・テーブルへの波及を `IMPACT-xx` 付きで洗い出す
       （影響なしの判断も理由を明記する）
-- [ ] **承認確認を提示する前に**、独立レビュー用サブエージェント（Task ツール・
-      `subagent_type: generalPurpose`・`readonly: true`、新規セッション）を起動し、
+- [ ] **承認確認を提示する前に**、専用レビューサブエージェント `sdd-design-reviewer`
+      （定義: `.cursor/agents/sdd-design-reviewer.md`、readonly、新規セッション）を起動し、
       `02-design-review-checklist.md` の全項目を検証させる（影響範囲はコードベース検索で裏取り）
 - [ ] 指摘のうち機械的に修正可能なものはその場で修正し、`02-design-review-checklist.md` に結果を記録する
 - [ ] 設計方針の変更を伴う指摘は自動修正せず、承認確認に含めて人間に提示する
@@ -56,6 +60,16 @@ description: >-
   - Vitest: `03-test-plan-vitest.csv`（JavaScript 単体テストがある場合）
 - [ ] 異なるテスト種別のケースを同じ CSV に混在させない
 - [ ] 各 CSV は 1 行 1 観点で、正常系・異常系・境界値・権限・派生パターンを網羅する
+- [ ] `03-test-plan.md` に要件カバレッジ表を作成し、`01-requirements.md` の UC / VAL / AC / NFR /
+      画面項目 / 権限の全項目に対応する Test ID が存在することを確認する（NFR で対応不可のものは理由を明記）
+- [ ] `02-design.md` §5 の `IMPACT-xx`（影響あり）に対応する回帰確認ケースを作成する
+- [ ] 期待結果が曖昧な表現（「正しく」「適切に」等）になっていないか確認する
+- [ ] 各テストケースが他ケースの実行結果・順序に依存せず、並列実行でも干渉しないか確認する
+- [ ] **承認確認を提示する前に**、専用レビューサブエージェント `sdd-plan-reviewer`
+      （定義: `.cursor/agents/sdd-plan-reviewer.md`、readonly、新規セッション）を起動し、
+      `03-test-plan-review-checklist.md` の全項目を検証させる
+- [ ] 指摘のうち機械的に修正可能なものはその場で修正し、`03-test-plan-review-checklist.md` に結果を記録する
+- [ ] 業務ルールの解釈等、判断が必要な指摘は自動修正せず承認確認に含めて人間に提示する
 - [ ] 承認後 `03-test-plan.status` を `approved` に
 
 **停止**: 承認までコード編集・テスト実行に進まない
@@ -69,7 +83,11 @@ description: >-
 - [ ] Vitest（JS 単体、該当時）
 - [ ] Playwright E2E（`tests/e2e_tests/`）
 - [ ] 失敗時は原因分析 → 修正（最大 3 回）→ エスカレーション
-- [ ] 完了時に実装・テストコードを git commit する（`[SDD][<slug>] フェーズ4(実装・テスト) 完了`）
+- [ ] 各 CSV の全 Test ID がテストコードに実装されていることを突合する（差分は理由を明記）
+- [ ] E2E が環境制約で実行不能な場合は「未実行・理由・環境解決後に実行」を完了報告に明記する（実行できたことにしない）
+- [ ] `04-completion-report.md` を作成（テスト実行結果・Test ID 突合・エビデンスパス・基準未達の理由）
+- [ ] 完了時に `effort-report.md` の「§2 実績記録」「§3 削減効果」を確定し、完了報告に含める
+- [ ] 実装・テストコード・完了報告を git commit する（`[SDD][<slug>] フェーズ4(実装・テスト) 完了`）
 
 ## 承認の受け方
 
