@@ -26,9 +26,9 @@ Laravel 12 管理画面。仕様駆動開発（SDD）で機能を追加する。
 | DB | PostgreSQL 18（Docker） |
 | フロント | Blade + Vite + axios + JavaScript + Tailwind CSS |
 | 認証 | Laravel 標準（session / Breeze 等）※Breeze は今後追加 |
-| 単体（サーバー） | PHPUnit（Service 等に限定） |
-| 単体（フロント） | Vitest（JavaScript） |
-| E2E | Playwright（TypeScript） |
+| 単体（サーバー） | PHPUnit（Service 単体・結合） |
+| 単体（フロント） | Vitest（JavaScript 純関数） |
+| E2E | Playwright（TypeScript）— ジャーニー正常系＋クリティカル異常 |
 
 ## Docker 構成（既存 LLax27 方式）
 
@@ -77,7 +77,9 @@ docker compose exec app php artisan test
 | `.cursor/rules/sdd-workflow.mdc` | SDD フェーズ・承認ゲート |
 | `.cursor/rules/laravel-conventions.mdc` | Laravel 規約 |
 | `.cursor/rules/frontend-vite-tailwind.mdc` | フロント規約 |
+| `.cursor/rules/testing-pyramid.mdc` | **テストピラミッド（レイヤ分担）の正本** |
 | `.cursor/rules/testing-playwright.mdc` | Playwright E2E 規約 |
+| `.cursor/rules/testing-phpunit.mdc` | PHPUnit 規約 |
 | `.cursor/rules/testing-vitest.mdc` | Vitest 規約 |
 | `.cursor/skills/sdd-bootstrap/SKILL.md` | プロジェクト立ち上げ |
 | `.cursor/skills/sdd-feature/SKILL.md` | 機能追加 |
@@ -87,6 +89,14 @@ docker compose exec app php artisan test
 | `.cursor/agents/sdd-plan-reviewer.md` | フェーズ 3（テスト設計）の独立レビュー専用サブエージェント（readonly） |
 
 ## テスト
+
+テストピラミッドの正本: `.cursor/rules/testing-pyramid.mdc`
+
+| レイヤ | コマンド |
+|--------|----------|
+| PHPUnit（単体・結合） | `docker compose exec app php artisan test` |
+| Vitest（JS 単体） | `npm run test` |
+| Playwright（ジャーニー・クリティカル異常） | `cd tests/e2e_tests && npx playwright test` |
 
 ```bat
 docker compose exec app php artisan test     # PHPUnit

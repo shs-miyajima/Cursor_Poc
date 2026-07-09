@@ -33,8 +33,10 @@ npx vitest run <path> # 個別実行
 
 ## 方針
 
-- E2E（Playwright）が主。Vitest は **JS ロジックの単体テスト** に限定
-- DOM 依存のテストは jsdom 等の Vitest 環境を使用
+- レイヤ分担の正本: `.cursor/rules/testing-pyramid.mdc`
+- **E2E は主テストではない**。重要ジャーニーの正常系とビジネスクリティカルな異常系に限定する
+- バリデーション・境界値の **網羅** は PHPUnit / Vitest の責務。E2E の `inp` は **1 画面 1 スモーク**＋クリティカル異常のみ
+- DOM 依存のテストは jsdom 等の Vitest 環境を使用（可能なら Vitest へ）
 - Service 相当のサーバー側ロジックは PHPUnit でテスト
 - 表示ロジックは特殊表示や異常系だけでなく、通常データが正しく描画される正常系も確認する
 - API ラッパーは URL / payload の正常系と、エラーを呼び出し側へ伝播するケースを確認する

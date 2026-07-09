@@ -1,0 +1,64 @@
+---
+description: PHPUnit テスト規約（Service 単体・結合）
+globs:
+  - "tests/**/*Test.php"
+  - "phpunit.xml"
+  - "phpunit.xml.dist"
+---
+
+# PHPUnit 規約
+
+返答は日本語。指定された作業範囲以外のコードは修正しない。
+
+レイヤ分担の正本: `.cursor/rules/testing-pyramid.mdc`
+
+## 位置づけ
+
+| 種別 | 内容 | 配置 |
+|------|------|------|
+| **単体** | ロジック、境界値、異常系、FormRequest | `tests/Unit/`、`tests/Feature/Http/`（422 確認） |
+| **結合** | DB 永続化、トランザクション、集計 | `tests/Feature/Services/`（`RefreshDatabase`） |
+
+**Controller クラス単体**は作らない。**FormRequest 単体** または **HTTP Feature（POST → 422）** で
+Controller 直前のバリデーションを担保する（`.cursor/rules/testing-pyramid.mdc`「HTTP・FormRequest 層」）。
+
+## 対象
+
+- `02-design.md` §6 に記載した Service / FormRequest / Enum / Model
+- FormRequest に定義した VAL（`layer:unit, target:FormRequest` または `layer:http`）
+- E2E で検証困難な NFR（ハッシュ形式、大量データ性能等）
+
+## 網羅の原則
+
+- **境界値**: NG と OK のペア（7/8 文字、500/501 行等）を PHPUnit に置く
+- **複合 VAL**: サブルール 1 件 = CSV 1 行（`03-test-plan-phpunit.csv`）
+- **Service 分岐**: コード上の `if` / `match` ごとに Killed されるテストを計画する
+- 代表サンプリングだけで親 VAL を「カバー済み」にしない
+
+## テスト計画 CSV
+
+- 正本: `docs/specs/<slug>/03-test-plan-phpunit.csv`
+- 備考列に `layer:unit` / `layer:integration` / `layer:http` / `target:FormRequest` 等を記載する
+
+## Test ID アノテーション
+
+```php
+/**
+ * PU-012-evt: CSV validateCsv(全行新規) — errors 0 件・rows 3 件すべて区分 new
+ */
+public function test_validate_csv_all_new_rows(): void
+```
+
+- `npm run lint:sdd:testid -- <slug>` で計画と実装の突合
+
+## 実行
+
+```bat
+docker compose exec app php artisan test
+docker compose exec app php artisan test tests/Feature/Services/UserCsvImportServiceTest.php
+```
+
+## SDD 連携
+
+- フェーズ 4 では PHPUnit → Vitest → Playwright の順で実行
+- バリデーション文言の網羅は PHPUnit（戻り値・errors 配列）を正とし、E2E はスモーク

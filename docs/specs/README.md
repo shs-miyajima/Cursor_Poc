@@ -56,6 +56,9 @@ git commit します（**フェーズコミット**。メッセージ形式:
 PHPUnit は `03-test-plan-phpunit.csv`、Vitest は `03-test-plan-vitest.csv` を使用し、
 異なるテスト種別のケースを同じ CSV に混在させません。
 
+**レイヤ分担**（Playwright = ジャーニー＋クリティカル異常、PHPUnit/Vitest = ロジック・境界値・異常系網羅）
+は `.cursor/rules/testing-pyramid.mdc` を正とします。
+
 ## 工数レポート
 
 各機能の `effort-report.md`（テンプレート: `_templates/effort-report.md`）に、

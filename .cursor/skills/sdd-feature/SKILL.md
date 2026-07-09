@@ -53,6 +53,7 @@ description: >-
 ### フェーズ 3: テスト設計
 
 - [ ] `02-design.status` が `approved` であることを確認
+- [ ] `.cursor/rules/testing-pyramid.mdc` に従い `03-test-plan.md` §1（ピラミッド・複合 VAL 分解表・閾値一覧）を記載
 - [ ] `03-test-plan.md` にテスト方針・カテゴリ別件数を記載
 - [ ] テスト種別ごとに CSV を分けてケース一覧を記載:
   - Playwright E2E: `03-test-plan.csv`
@@ -110,7 +111,9 @@ description: >-
 | Laravel 規約 | `.cursor/rules/laravel-conventions.mdc` |
 | フロント規約 | `.cursor/rules/frontend-vite-tailwind.mdc` |
 | Playwright 規約 | `.cursor/rules/testing-playwright.mdc` |
+| PHPUnit 規約 | `.cursor/rules/testing-phpunit.mdc` |
 | Vitest 規約 | `.cursor/rules/testing-vitest.mdc` |
+| テストピラミッド | `.cursor/rules/testing-pyramid.mdc` |
 
 ## テスト実行コマンド
 
