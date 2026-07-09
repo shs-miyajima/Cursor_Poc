@@ -43,8 +43,9 @@ globs:
 
 ## テスト
 
-- PHPUnit は **Service 等の単体テストに限定**
-- E2E は Playwright が主。Controller の E2E 代替テストは原則書かない
+- レイヤ分担の正本: `.cursor/rules/testing-pyramid.mdc`
+- PHPUnit: Service 単体・結合・FormRequest・**HTTP Feature（422 / 認可）**
+- E2E（Playwright）: ジャーニー正常系と**画面固有**のクリティカル異常に限定。認可の HTTP 網羅は PHPUnit へ
 
 ## コマンド
 
