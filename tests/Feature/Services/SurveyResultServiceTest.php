@@ -15,10 +15,13 @@ use App\Services\ResultFilter;
 use App\Services\SurveyResultService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Tests\Feature\Http\Concerns\HttpTestHelpers;
 use Tests\TestCase;
 
 class SurveyResultServiceTest extends TestCase
 {
+    use HttpTestHelpers;
     use RefreshDatabase;
 
     private SurveyResultService $service;
@@ -305,5 +308,54 @@ class SurveyResultServiceTest extends TestCase
         $this->assertSame(1000, $result['total_responses']);
         $this->assertSame(['満足' => 1000, '普通' => 0, '不満' => 0], $this->countsFor($result));
         $this->assertLessThan(3.0, $elapsed, "集計に {$elapsed} 秒かかりました（基準: 3 秒以内）");
+    }
+
+    /**
+     * PU-148-evt: ユーザー部署変更と集計反映 — 部署変更後に総務部絞り込みで件数 1
+     */
+    public function test_aggregate_reflects_user_department_change_after_update(): void
+    {
+        $sales = Department::factory()->create(['company_id' => $this->company->id, 'name' => '営業部']);
+        $general = Department::factory()->create(['company_id' => $this->company->id, 'name' => '総務部']);
+
+        $user = User::factory()->create([
+            'company_id' => $this->company->id,
+            'department_id' => $sales->id,
+        ]);
+
+        $response = SurveyResponse::factory()->create([
+            'survey_id' => $this->survey->id,
+            'user_id' => $user->id,
+        ]);
+        SurveyAnswer::factory()->create([
+            'survey_response_id' => $response->id,
+            'question_id' => $this->question->id,
+            'question_option_id' => $this->options['満足']->id,
+        ]);
+
+        $admin = User::factory()->admin()->create([
+            'company_id' => $this->company->id,
+            'password' => Hash::make('pass12345'),
+        ]);
+
+        $this->actingAs($admin)
+            ->withSession($this->sessionForCompany($this->company))
+            ->put(route('users.update', $user), [
+                'name' => $user->name,
+                'email' => $user->email,
+                'password' => '',
+                'department_id' => $general->id,
+                'gender' => $user->gender->value,
+                'birth_date' => '',
+                'hired_month' => '',
+            ])
+            ->assertRedirect(route('users.index'));
+
+        $this->assertSame($general->id, $user->fresh()->department_id);
+
+        $result = $this->service->aggregate($this->survey, new ResultFilter(departmentId: $general->id));
+
+        $this->assertSame(1, $result['total_responses']);
+        $this->assertSame(['満足' => 1, '普通' => 0, '不満' => 0], $this->countsFor($result));
     }
 }

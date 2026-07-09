@@ -2,6 +2,15 @@
 
 <!-- 差戻し・承認・仕様変更の記録。reopened（差分承認で draft に戻した）時は変更理由も書く -->
 
+## 2026-07-09
+
+- フェーズ: テスト設計
+- 操作: reopened
+- 理由: `.cursor/rules/testing-pyramid.mdc` 改定により E2E 偏重（inp 96 件）から
+  正しいテストピラミッド（E2E=ジャーニー+権限+1画面1スモーク、PHPUnit=VAL/境界値/FormRequest）
+  へレイヤ再配分するため。03-test-plan.csv / 03-test-plan-phpunit.csv / 03-test-plan-vitest.csv を
+  ドラフトで書き換え、件数差分を確定後に再承認を求める
+
 ## 2026-07-08
 
 - フェーズ: 実装・テスト

@@ -25,6 +25,7 @@ class SurveyServiceTest extends TestCase
 
     /**
      * PU-021-evt: SurveyService::publish(過去締切) — ValidationException(VAL-26) が発生し status は draft のまま
+     * PU-096-inp: アンケート(過去締切で公開) — Service 層（PU-021 と同一検証）
      */
     public function test_publish_rejects_past_deadline(): void
     {
@@ -136,5 +137,38 @@ class SurveyServiceTest extends TestCase
         ]);
 
         $this->assertSame(SurveyStatus::Published, $survey->effectiveStatus());
+    }
+
+    /**
+     * PU-097-inp: SurveyService::publish(未来締切) — 公開成功し status=published
+     */
+    public function test_publish_accepts_future_deadline(): void
+    {
+        $survey = Survey::factory()->create([
+            'deadline_at' => now()->addYear(),
+        ]);
+
+        $this->service->publish($survey);
+
+        $this->assertDatabaseHas('surveys', [
+            'id' => $survey->id,
+            'status' => 'published',
+        ]);
+        $this->assertTrue($survey->fresh()->deadline_at->isFuture());
+    }
+
+    /**
+     * PU-118-evt: SurveyService::close(公開→終了) — status=closed に更新される
+     */
+    public function test_close_sets_status_to_closed(): void
+    {
+        $survey = Survey::factory()->published()->create();
+
+        $this->service->close($survey);
+
+        $this->assertDatabaseHas('surveys', [
+            'id' => $survey->id,
+            'status' => 'closed',
+        ]);
     }
 }

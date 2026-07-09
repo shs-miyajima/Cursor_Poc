@@ -63,3 +63,32 @@ export function removeOption(state, questionIndex, optionIndex) {
 export function shouldShowOptions(question) {
   return question.type !== 'text';
 }
+
+const MAX_QUESTIONS = 50;
+const MIN_OPTIONS = 2;
+const MAX_OPTIONS = 10;
+
+/**
+ * クライアント側の設問数・選択肢数バリデーション（VAL-23 / VAL-24）。
+ * @returns {string[]} エラーメッセージの配列（0 件なら OK）
+ */
+export function validateSurveyState(state) {
+  const errors = [];
+
+  if (state.questions.length > MAX_QUESTIONS) {
+    errors.push('設問は 50 問以内にしてください');
+  }
+
+  for (const question of state.questions) {
+    if (question.type === 'text') {
+      continue;
+    }
+    const count = question.options?.length ?? 0;
+    if (count < MIN_OPTIONS || count > MAX_OPTIONS) {
+      errors.push('選択肢は 2 個以上 10 個以内で入力してください');
+      break;
+    }
+  }
+
+  return errors;
+}

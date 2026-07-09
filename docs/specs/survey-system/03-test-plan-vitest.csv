@@ -8,3 +8,9 @@ VT-006-dyn,dyn,chartDataTransformer(縦棒グラフ),選択肢別件数(満足2/
 VT-007-dyn,dyn,chartDataTransformer(円グラフ),同上の集計 JSON,type=pie で変換,変換関数を実行,同じ labels・data で chart type が pie の設定が返る,,UC-26 AC-27
 VT-008-dyn,dyn,chartDataTransformer(0件),全選択肢 0 件の集計 JSON,type=bar で変換,変換関数を実行,data が [0,0,0] で返り例外が発生しない,回答 0 件境界,AC-26
 VT-009-dyn,dyn,chartDataTransformer(自由記述),type=text の設問を含む集計 JSON,変換対象の判定,変換関数を実行,自由記述設問はグラフ変換対象外と判定され answers のテキスト配列がそのまま返る,,UC-24
+VT-010-dyn,dyn,surveyFormState 選択肢1個,単一選択設問(選択肢2個),選択肢を1個に減らす,validateSurveyState(),errors に選択肢数エラーが1件含まれる,VAL-24 下限 NG。旧 E2E-100 から移行,VAL-24
+VT-011-dyn,dyn,surveyFormState 選択肢11個,単一選択設問(選択肢10個),選択肢を11個に増やす,validateSurveyState(),errors に選択肢数エラーが1件含まれる,VAL-24 上限 NG。旧 E2E-101 から移行,VAL-24
+VT-012-dyn,dyn,surveyFormState 選択肢2個境界,単一選択設問(選択肢1個),選択肢を2個にする,validateSurveyState(),errors が0件,VAL-24 下限 OK。旧 E2E-102 から移行,VAL-24
+VT-013-dyn,dyn,surveyFormState 選択肢10個境界,単一選択設問(選択肢9個),選択肢を10個にする,validateSurveyState(),errors が0件,VAL-24 上限 OK。旧 E2E-103 から移行,VAL-24
+VT-014-dyn,dyn,surveyFormState 設問51個,設問50問の状態,設問を51問に増やす,validateSurveyState(),errors に設問数エラーが1件含まれる,VAL-23 上限 NG。旧 E2E-098 から移行,VAL-23
+VT-015-dyn,dyn,surveyFormState 設問50個境界,設問49問の状態,設問を50問に増やす,validateSurveyState(),errors が0件,VAL-23 上限 OK。旧 E2E-099 から移行,VAL-23

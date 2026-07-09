@@ -8,6 +8,7 @@ import {
   addOption,
   removeOption,
   shouldShowOptions,
+  validateSurveyState,
 } from './surveyFormState.js';
 
 describe('surveyFormState', () => {
@@ -70,5 +71,63 @@ describe('surveyFormState', () => {
 
     expect(state.questions[0].options).toHaveLength(3);
     expect(state.questions[0].options.map((o) => o.sort_order)).toEqual([1, 2, 3]);
+  });
+
+  // VT-010-dyn: 選択肢1個 — errors に選択肢数エラーが1件含まれる
+  it('選択肢が1個のとき validateSurveyState がエラーを返す', () => {
+    let state = createState();
+    state = removeOption(state, 0, 1);
+
+    expect(validateSurveyState(state)).toEqual(['選択肢は 2 個以上 10 個以内で入力してください']);
+  });
+
+  // VT-011-dyn: 選択肢11個 — errors に選択肢数エラーが1件含まれる
+  it('選択肢が11個のとき validateSurveyState がエラーを返す', () => {
+    let state = createState();
+    for (let i = 0; i < 9; i += 1) {
+      state = addOption(state, 0);
+    }
+
+    expect(validateSurveyState(state).length).toBe(1);
+    expect(validateSurveyState(state)[0]).toBe('選択肢は 2 個以上 10 個以内で入力してください');
+  });
+
+  // VT-012-dyn: 選択肢2個境界 — errors が0件
+  it('選択肢が2個のとき validateSurveyState はエラーなし', () => {
+    let state = createState();
+    state = removeOption(state, 0, 1);
+    state = addOption(state, 0);
+
+    expect(validateSurveyState(state)).toEqual([]);
+  });
+
+  // VT-013-dyn: 選択肢10個境界 — errors が0件
+  it('選択肢が10個のとき validateSurveyState はエラーなし', () => {
+    let state = createState();
+    for (let i = 0; i < 8; i += 1) {
+      state = addOption(state, 0);
+    }
+
+    expect(validateSurveyState(state)).toEqual([]);
+  });
+
+  // VT-014-dyn: 設問51個 — errors に設問数エラーが1件含まれる
+  it('設問が51問のとき validateSurveyState がエラーを返す', () => {
+    let state = createState();
+    for (let i = 0; i < 50; i += 1) {
+      state = addQuestion(state);
+    }
+
+    expect(validateSurveyState(state)).toEqual(['設問は 50 問以内にしてください']);
+  });
+
+  // VT-015-dyn: 設問50個境界 — errors が0件
+  it('設問が50問のとき validateSurveyState はエラーなし', () => {
+    let state = createState();
+    for (let i = 0; i < 49; i += 1) {
+      state = addQuestion(state);
+    }
+
+    expect(validateSurveyState(state)).toEqual([]);
   });
 });

@@ -16,7 +16,7 @@ globs:
 
 | 種別 | 内容 | 配置 |
 |------|------|------|
-| **単体** | ロジック、境界値、異常系、FormRequest | `tests/Unit/`、`tests/Feature/Http/`（422 確認） |
+| **単体** | ロジック、境界値、異常系、FormRequest | `tests/Unit/`、`tests/Feature/Http/`（422・認可確認） |
 | **結合** | DB 永続化、トランザクション、集計 | `tests/Feature/Services/`（`RefreshDatabase`） |
 
 **Controller クラス単体**は作らない。**FormRequest 単体** または **HTTP Feature（POST → 422）** で
@@ -26,6 +26,8 @@ Controller 直前のバリデーションを担保する（`.cursor/rules/testin
 
 - `02-design.md` §6 に記載した Service / FormRequest / Enum / Model
 - FormRequest に定義した VAL（`layer:unit, target:FormRequest` または `layer:http`）
+- **HTTP 認可**（ロール×URL の 403/404、`layer:http`）— 詳細は `testing-pyramid.mdc`「認可・認証の分担」
+- 検索・絞り込み・集計の条件分岐（`layer:integration`）
 - E2E で検証困難な NFR（ハッシュ形式、大量データ性能等）
 
 ## 網羅の原則

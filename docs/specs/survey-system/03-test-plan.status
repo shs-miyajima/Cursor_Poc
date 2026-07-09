@@ -1,3 +1,4 @@
-approved
-date: 2026-07-08
+draft
+date: 2026-07-09
 phase: 03-test-plan
+reason: testing-pyramid.mdc 改定に伴うレイヤ再配分（E2E inp 縮小・PHPUnit FormRequest 層追加）

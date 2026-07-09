@@ -54,7 +54,8 @@ description: >-
 
 - [ ] `02-design.status` が `approved` であることを確認
 - [ ] `.cursor/rules/testing-pyramid.mdc` に従い `03-test-plan.md` §1（ピラミッド・複合 VAL 分解表・閾値一覧）を記載
-- [ ] `03-test-plan.md` にテスト方針・カテゴリ別件数を記載
+- [ ] **PHPUnit / Vitest を先に設計**し、E2E 候補を §1.5（棚卸し: 維持/移行/削減）で分類してから E2E CSV を確定する
+- [ ] `03-test-plan.md` にテスト方針・カテゴリ別件数・§1.5 棚卸しを記載
 - [ ] テスト種別ごとに CSV を分けてケース一覧を記載:
   - Playwright E2E: `03-test-plan.csv`
   - PHPUnit: `03-test-plan-phpunit.csv`（Service 等の単体テストがある場合）

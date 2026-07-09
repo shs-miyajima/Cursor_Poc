@@ -6,12 +6,25 @@ use App\Enums\SurveyStatus;
 use App\Models\Survey;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateSurveyRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            /** @var Survey $survey */
+            $survey = $this->route('survey');
+
+            if ($survey->status !== SurveyStatus::Draft && $this->has('questions')) {
+                $validator->errors()->add('questions', '公開後のアンケートの設問は変更できません');
+            }
+        });
     }
 
     public function rules(): array

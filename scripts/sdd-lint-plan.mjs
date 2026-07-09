@@ -16,6 +16,7 @@
  *        a. 対応 Test ID が空の行がないこと
  *        b. 要件 ID が 01-requirements.md / 02-design.md に実在すること
  *   7. 03-test-plan.md の回帰確認表に対応 Test ID が空の行がないこと
+ *   8. テストピラミッド: §1.5 棚卸し、auth HTTP 残留、絞り込み E2E 重複、下層との観点重複の疑い
  *
  * Exit code: 1 (ERROR あり) / 0 (問題なし)
  */
@@ -239,6 +240,74 @@ function lintMarkdownTables(mdPath, relPath, definedIds) {
   return issues;
 }
 
+// ----- テストピラミッド検証 -----
+
+function countDataRows(csvPath) {
+  if (!existsSync(csvPath)) return 0;
+  const rows = parseCSV(readFileSync(csvPath, 'utf-8'));
+  return Math.max(0, rows.length - 1);
+}
+
+function lintPyramid(specDir, slug) {
+  const issues = [];
+  const rel = (p) => `docs/specs/${slug}/${p}`;
+
+  const e2eCount = countDataRows(join(specDir, '03-test-plan.csv'));
+  const puCount = countDataRows(join(specDir, '03-test-plan-phpunit.csv'));
+  const vtCount = countDataRows(join(specDir, '03-test-plan-vitest.csv'));
+  const total = e2eCount + puCount + vtCount;
+
+  if (total > 0 && e2eCount > 0) {
+    const ratio = (e2eCount / total) * 100;
+    const ratioLabel = `${e2eCount}/${total} = ${ratio.toFixed(1)}%`;
+    // 件数比は上限ではない。高いときだけ重複確認のシグナルとして INFO 相当の WARN を出す
+    if (ratio > 25) {
+      issues.push(warn(rel('03-test-plan.csv'), null,
+        `E2E 件数比が高めです（${ratioLabel}）。比率自体は不合格基準ではありません。§1.5 で下層との重複・移行漏れがないか確認してください`));
+    }
+  }
+
+  const mdPath = join(specDir, '03-test-plan.md');
+  if (existsSync(mdPath)) {
+    const md = readFileSync(mdPath, 'utf-8');
+    if (!/###\s+1\.5\s+E2E\s+棚卸し/.test(md)) {
+      issues.push(warn(rel('03-test-plan.md'), null,
+        '§1.5（E2E 棚卸し）がありません。testing-pyramid.mdc の作成手順に従って追加してください'));
+    }
+  }
+
+  const e2ePath = join(specDir, '03-test-plan.csv');
+  if (existsSync(e2ePath)) {
+    const rows = parseCSV(readFileSync(e2ePath, 'utf-8'));
+    const filterE2E = [];
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const lineNum = i + 1;
+      const testId = (row[0] ?? '').trim();
+      const category = (row[1] ?? '').trim();
+      const target = (row[2] ?? '').trim();
+      const expected = (row[6] ?? '').trim();
+      const note = (row[7] ?? '').trim();
+
+      if (category === 'auth' && /403|404|Forbidden|Not Found|アクセス拒否|権限がありません/.test(expected + note)) {
+        issues.push(warn(rel('03-test-plan.csv'), lineNum,
+          `E2E auth に HTTP 認可（403/404）らしき期待結果があります。PHPUnit HTTP へ移行を検討（${testId}）`));
+      }
+
+      if (/絞り込み|フィルタ|filter/i.test(target + (row[4] ?? '') + note)) {
+        filterE2E.push({ testId, lineNum });
+      }
+    }
+    if (filterE2E.length > 1) {
+      const ids = filterE2E.map((x) => x.testId).join(', ');
+      issues.push(warn(rel('03-test-plan.csv'), filterE2E[1].lineNum,
+        `絞り込み・フィルタ関連の E2E が ${filterE2E.length} 件あります（${ids}）。代表 1 件 + PHPUnit 網羅を推奨`));
+    }
+  }
+
+  return issues;
+}
+
 // ----- 出力ヘルパー -----
 
 function error(file, line, msg) { return { level: 'ERROR', file, line, msg }; }
@@ -293,6 +362,9 @@ function main() {
     `docs/specs/${slug}/03-test-plan.md`,
     definedIds
   ));
+
+  // テストピラミッド（件数比・棚卸し・auth HTTP 残留等）
+  allIssues.push(...lintPyramid(specDir, slug));
 
   // 集計・出力
   let errorCount = 0;

@@ -42,3 +42,106 @@ PU-040-other,other,Gender::fromLabel(正常4値),なし,「男性」「女性」
 PU-041-other,other,Gender::fromLabel(不正値),なし,「男」を変換,fromLabel() を実行,null が返る(CSV ではエラー行の判定に使う),,VAL-18
 PU-042-evt,evt,SurveyResultService(属性NULL・絞り込みなしで包含),部署未設定ユーザーの回答 1 件を作成,フィルタなし,aggregate() を実行,total_responses=1(部署未設定の回答が含まれる),対は PU-032,AC-28
 PU-043-other,other,年代変換(60代〜の区分),60 歳と 59 歳のユーザー回答を作成,年代=60 代〜,aggregate() を実行,total_responses=1(60 歳のみ含まれ 59 歳は含まれない),対は PU-035,AC-28
+PU-044-inp,inp,PHPUnit: ログイン(パスワード未入力),なし,メール入力・パスワード空欄,ログイン実行,「パスワードは必須です」422 または errors に該当メッセージが含まれる,"layer:http, target:POST /login。旧 E2E-007 から E2E 移行",VAL-02
+PU-045-inp,inp,PHPUnit: ログイン(メール大文字),本ケース専用のユーザー(taro@…)を新規作成済み,メール欄に大文字 TARO@… を入力,ログイン実行,小文字正規化により認証成功しアンケート一覧に遷移する,"layer:http, target:POST /login。旧 E2E-010 から E2E 移行",AC-33
+PU-046-inp,inp,PHPUnit: 企業登録(企業名重複),本ケース専用の企業を登録済み,同じ企業名・別コード,登録実行,「この企業名は既に登録されています」422 または errors に該当メッセージが含まれ追加されない,"layer:http, target:POST /companies。旧 E2E-013 から E2E 移行",VAL-04
+PU-047-inp,inp,PHPUnit: 企業登録(企業名101文字),スーパーユーザーでログイン済み,101 文字の企業名,登録実行,「企業名は 100 文字以内で入力してください」422 または errors に該当メッセージが含まれ追加されない,"layer:http, target:POST /companies。旧 E2E-014 から E2E 移行",VAL-05
+PU-048-inp,inp,PHPUnit: 企業登録(企業名100文字境界),スーパーユーザーでログイン済み,100 文字ちょうどの一意な企業名,登録実行,登録に成功し一覧に 100 文字の企業名が表示される,"layer:http, target:POST /companies。旧 E2E-015 から E2E 移行",VAL-05
+PU-049-inp,inp,PHPUnit: 企業登録(コード未入力),スーパーユーザーでログイン済み,企業名入力・コード空欄,登録実行,「企業コードは必須です」422 または errors に該当メッセージが含まれ追加されない,"layer:http, target:POST /companies。旧 E2E-016 から E2E 移行",VAL-06
+PU-050-inp,inp,PHPUnit: 企業登録(コード記号混入),スーパーユーザーでログイン済み,コードに「abc-01!」,登録実行,「企業コードは半角英数字 20 文字以内で入力してください」422 または errors に該当メッセージが含まれ追加されない,"layer:http, target:POST /companies。旧 E2E-017 から E2E 移行",VAL-07
+PU-051-inp,inp,PHPUnit: 企業登録(コード21文字),スーパーユーザーでログイン済み,半角英数 21 文字のコード,登録実行,「企業コードは半角英数字 20 文字以内で入力してください」422 または errors に該当メッセージが含まれ追加されない,"layer:http, target:POST /companies。旧 E2E-018 から E2E 移行",VAL-07
+PU-052-inp,inp,PHPUnit: 企業登録(コード20文字境界),スーパーユーザーでログイン済み,半角英数 20 文字ちょうどの一意コード,登録実行,登録に成功し一覧に表示される,"layer:http, target:POST /companies。旧 E2E-019 から E2E 移行",VAL-07
+PU-053-inp,inp,PHPUnit: 企業登録(コード重複),本ケース専用の企業を登録済み,別企業名・同じコード,登録実行,「この企業コードは既に登録されています」422 または errors に該当メッセージが含まれ追加されない,"layer:http, target:POST /companies。旧 E2E-020 から E2E 移行",VAL-08
+PU-054-inp,inp,PHPUnit: ユーザー登録(メール未入力),本ケース専用の企業と管理者を新規作成しログイン済み,メール空欄・他項目入力,登録実行,「メールアドレスは必須です」422 または errors に該当メッセージが含まれ登録されない,"layer:http, target:POST /users。旧 E2E-035 から E2E 移行",VAL-09
+PU-055-inp,inp,PHPUnit: ユーザー登録(パスワード未入力),本ケース専用の企業と管理者を新規作成しログイン済み,パスワード空欄・他項目入力,登録実行,「パスワードは必須です」422 または errors に該当メッセージが含まれ登録されない,"layer:http, target:POST /users。旧 E2E-036 から E2E 移行",VAL-09
+PU-056-inp,inp,PHPUnit: ユーザー登録(メール形式不正),本ケース専用の企業と管理者を新規作成しログイン済み,メール欄に「aaa」,登録実行,「メールアドレスの形式が正しくありません」422 または errors に該当メッセージが含まれ登録されない,"layer:http, target:POST /users。旧 E2E-037 から E2E 移行",VAL-10
+PU-057-inp,inp,PHPUnit: ユーザー登録(同一企業メール重複),本ケース専用の企業にユーザー(taro@…)を登録済み,同じメールで再登録,登録実行,「このメールアドレスは既に登録されています」422 または errors に該当メッセージが含まれ登録されない,"layer:http, target:POST /users。旧 E2E-038 から E2E 移行",VAL-11
+PU-058-inp,inp,PHPUnit: ユーザー登録(パスワード7文字),本ケース専用の企業と管理者を新規作成しログイン済み,パスワードに 7 文字,登録実行,「パスワードは 8 文字以上で入力してください」422 または errors に該当メッセージが含まれ登録されない,"layer:http, target:POST /users。旧 E2E-040 から E2E 移行",VAL-12
+PU-059-inp,inp,PHPUnit: ユーザー登録(パスワード8文字境界),本ケース専用の企業と管理者を新規作成しログイン済み,パスワードに 8 文字ちょうど,登録後にそのアカウントでログイン,登録成功しそのパスワードでログインできる,"layer:http, target:POST /users。旧 E2E-041 から E2E 移行",VAL-12
+PU-060-inp,inp,PHPUnit: ユーザー登録(氏名101文字),本ケース専用の企業と管理者を新規作成しログイン済み,氏名に 101 文字,登録実行,「氏名は 100 文字以内で入力してください」422 または errors に該当メッセージが含まれ登録されない,"layer:http, target:POST /users。旧 E2E-042 から E2E 移行",画面項目 S-04(氏名)
+PU-061-inp,inp,PHPUnit: ユーザー登録(氏名100文字境界),本ケース専用の企業と管理者を新規作成しログイン済み,氏名に 100 文字ちょうど,登録実行,登録成功し一覧に 100 文字の氏名が表示される,"layer:http, target:POST /users。旧 E2E-043 から E2E 移行",画面項目 S-04(氏名)
+PU-062-inp,inp,PHPUnit: ユーザー編集(パスワード空=変更なし),本ケース専用のユーザー(パスワード P1)を作成済み,パスワード欄を空のまま氏名のみ変更して保存,保存後に P1 でログイン,保存成功し従来のパスワード P1 でログインできる,"layer:http, target:PUT /users/{id}。旧 E2E-046 から E2E 移行",画面項目 S-04a(パスワード)
+PU-063-inp,inp,PHPUnit: ユーザー編集(部署空上書き),本ケース専用のユーザー(部署=営業部)を作成済み,部署を「未設定」にして保存,編集画面で保存,一覧の部署表示が「未設定」になる(空値上書き),"layer:http, target:PUT /users/{id}。旧 E2E-047 から E2E 移行",画面項目 S-04a(部署)
+PU-064-inp,inp,PHPUnit: ユーザー編集(性別未選択),本ケース専用のユーザー(性別=男性)を作成済み,性別を「未回答」にして保存,編集画面で保存,編集画面を再表示すると性別が「未回答」になっている,"layer:http, target:PUT /users/{id}。旧 E2E-048 から E2E 移行",画面項目 S-04a(性別)
+PU-065-inp,inp,PHPUnit: ユーザー編集(生年月日空上書き),本ケース専用のユーザー(生年月日あり)を作成済み,生年月日を空にして保存,編集画面で保存,再表示で生年月日が空になっている(空値上書き),"layer:http, target:PUT /users/{id}。旧 E2E-049 から E2E 移行",画面項目 S-04a(生年月日)
+PU-066-inp,inp,PHPUnit: ユーザー編集(入社年月空上書き),本ケース専用のユーザー(入社年月あり)を作成済み,入社年月を空にして保存,編集画面で保存,再表示で入社年月が空になっている(空値上書き),"layer:http, target:PUT /users/{id}。旧 E2E-050 から E2E 移行",画面項目 S-04a(入社年月)
+PU-067-inp,inp,PHPUnit: 部署登録(101文字),本ケース専用の企業と管理者を新規作成しログイン済み,101 文字の部署名,登録実行,「部署名は 100 文字以内で入力してください」422 または errors に該当メッセージが含まれ追加されない,"layer:http, target:POST /departments。旧 E2E-056 から E2E 移行",VAL-14
+PU-068-inp,inp,PHPUnit: 部署登録(同一企業内重複),本ケース専用の企業に部署「営業部」を登録済み,同名「営業部」で登録,登録実行,「この部署名は既に登録されています」422 または errors に該当メッセージが含まれ追加されない,"layer:http, target:POST /departments。旧 E2E-057 から E2E 移行",VAL-15
+PU-069-inp,inp,PHPUnit: CSV(拡張子不正),本ケース専用の企業と管理者を新規作成しログイン済み,.xlsx ファイルを選択,アップロード実行,「CSV ファイル(2MB 以内)を選択してください」422 または errors に該当メッセージが含まれ取り込まれない,"layer:http, target:POST /users/import。旧 E2E-067 から E2E 移行",VAL-16
+PU-070-inp,inp,PHPUnit: CSV(2MB超),本ケース専用の企業と管理者を新規作成しログイン済み,2MB 超の CSV ファイル,アップロード実行,「CSV ファイル(2MB 以内)を選択してください」422 または errors に該当メッセージが含まれ取り込まれない,"layer:http, target:POST /users/import。旧 E2E-068 から E2E 移行",VAL-16
+PU-071-inp,inp,PHPUnit: CSV(501行),本ケース専用の企業と管理者を新規作成しログイン済み,データ行 501 行の CSV,アップロード実行,「CSV は 500 行以内にしてください」422 または errors に該当メッセージが含まれ 1 件も登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-069 から E2E 移行",VAL-17
+PU-072-inp,inp,PHPUnit: CSV(500行境界),本ケース専用の企業・管理者を作成済み,データ行 500 行ちょうど(全行正常・一意メール)の CSV,アップロード→確認→確定,確定後にユーザー一覧へ 500 件追加され完了メッセージに「新規 500 件」が表示される,"layer:integration, target:UserCsvImportService。旧 E2E-070 から E2E 移行",VAL-17 NFR-05
+PU-073-inp,inp,PHPUnit: CSV(氏名欠落行),本ケース専用の企業・管理者を作成済み,2 行目の氏名が空の CSV(3 行),アップロード実行,「2 行目: 氏名 — 必須です」形式のエラー422 または errors に該当メッセージが含まれ確認画面に進まず 1 件も登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-071 から E2E 移行",VAL-18 UC-13b AC-18
+PU-074-inp,inp,PHPUnit: CSV(メール形式不正行),本ケース専用の企業と管理者を新規作成しログイン済み,2 行目のメールが「aaa」の CSV,アップロード実行,「2 行目: メールアドレス — 形式が正しくありません」422 または errors に該当メッセージが含まれ 1 件も登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-072 から E2E 移行",VAL-18
+PU-075-inp,inp,PHPUnit: CSV(ファイル内メール重複),本ケース専用の企業と管理者を新規作成しログイン済み,1 行目と 3 行目が同一メールの CSV,アップロード実行,「3 行目: メールアドレス — ファイル内で重複しています」422 または errors に該当メッセージが含まれ 1 件も登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-073 から E2E 移行",VAL-18
+PU-076-inp,inp,PHPUnit: CSV(既存管理者と同一メール),本ケース専用の企業に管理者(admin@…)を作成済み,admin@… を含む 1 行 CSV,アップロード実行,「1 行目: メールアドレス — 管理者のメールアドレスは取込できません」422 または errors に該当メッセージが含まれ登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-074 から E2E 移行",VAL-18
+PU-077-inp,inp,PHPUnit: CSV(パスワード7文字行),本ケース専用の企業と管理者を新規作成しログイン済み,2 行目のパスワードが 7 文字の CSV,アップロード実行,「2 行目: パスワード — 8 文字以上で入力してください」422 または errors に該当メッセージが含まれ 1 件も登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-075 から E2E 移行",VAL-18
+PU-078-inp,inp,PHPUnit: CSV(性別不正値),本ケース専用の企業と管理者を新規作成しログイン済み,性別列に「男」と記載した CSV,アップロード実行,「1 行目: 性別 — 男性/女性/その他/未回答 のいずれかで入力してください」422 または errors に該当メッセージが含まれ登録されない,"layer:unit, target:Gender::fromLabel。旧 E2E-076 から E2E 移行",VAL-18
+PU-079-inp,inp,PHPUnit: CSV(生年月日形式不正),本ケース専用の企業と管理者を新規作成しログイン済み,生年月日列に「1990/04/15」と記載した CSV,アップロード実行,「1 行目: 生年月日 — YYYY-MM-DD 形式で入力してください」422 または errors に該当メッセージが含まれ登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-077 から E2E 移行",VAL-18
+PU-080-inp,inp,PHPUnit: CSV(入社年月形式不正),本ケース専用の企業と管理者を新規作成しログイン済み,入社年月列に「2015-04-01」と記載した CSV,アップロード実行,「1 行目: 入社年月 — YYYY-MM 形式で入力してください」422 または errors に該当メッセージが含まれ登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-078 から E2E 移行",VAL-18
+PU-081-inp,inp,PHPUnit: CSV(部署マスタ未登録),本ケース専用の企業(部署未登録)を作成済み,部署列に「企画部」と記載した CSV,アップロード実行,「1 行目: 部署 — 部署マスタに登録されていません」422 または errors に該当メッセージが含まれ登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-079 から E2E 移行",VAL-18
+PU-082-inp,inp,PHPUnit: アンケート(タイトル101文字),本ケース専用の企業と管理者を新規作成しログイン済み,101 文字のタイトル,公開実行,「タイトルは 100 文字以内で入力してください」422 または errors に該当メッセージが含まれ作成されない,"layer:http, target:POST /surveys。旧 E2E-092 から E2E 移行",VAL-19
+PU-083-inp,inp,PHPUnit: アンケート(タイトル100文字境界),本ケース専用の企業・管理者を作成済み,100 文字ちょうどのタイトル,公開実行,作成成功し管理一覧に表示される,"layer:http, target:POST /surveys。旧 E2E-093 から E2E 移行",VAL-19
+PU-084-inp,inp,PHPUnit: アンケート(説明1001文字),本ケース専用の企業と管理者を新規作成しログイン済み,説明に 1001 文字,公開実行,「説明は 1000 文字以内で入力してください」422 または errors に該当メッセージが含まれ作成されない,"layer:http, target:POST /surveys。旧 E2E-094 から E2E 移行",VAL-20
+PU-085-inp,inp,PHPUnit: アンケート(設問0問),本ケース専用の企業と管理者を新規作成しログイン済み,タイトルのみ入力し設問を全削除,公開実行,「設問を 1 問以上追加してください」422 または errors に該当メッセージが含まれ作成されない,"layer:http, target:POST /surveys。旧 E2E-095 から E2E 移行",VAL-21
+PU-086-inp,inp,PHPUnit: アンケート(設問文未入力),本ケース専用の企業と管理者を新規作成しログイン済み,設問文空欄の設問 1 問,公開実行,「設問文は必須です」422 または errors に該当メッセージが含まれ作成されない,"layer:http, target:POST /surveys。旧 E2E-096 から E2E 移行",VAL-22
+PU-087-inp,inp,PHPUnit: アンケート(設問文501文字),本ケース専用の企業と管理者を新規作成しログイン済み,501 文字の設問文,公開実行,「設問文は 500 文字以内で入力してください」422 または errors に該当メッセージが含まれ作成されない,"layer:http, target:POST /surveys。旧 E2E-097 から E2E 移行",VAL-22
+PU-088-inp,inp,PHPUnit: アンケート(設問51問),本ケース専用の企業と管理者を新規作成しログイン済み,設問を 51 問追加,公開実行,「設問は 50 問以内にしてください」422 または errors に該当メッセージが含まれ作成されない,"layer:http, target:StoreSurveyRequest。旧 E2E-098 から E2E 移行",VAL-23
+PU-089-inp,inp,PHPUnit: アンケート(設問50問境界),本ケース専用の企業・管理者を作成済み,設問 50 問ちょうど,公開実行,作成成功しユーザーの回答画面に 50 問表示される,"layer:http, target:POST /surveys。旧 E2E-099 から E2E 移行",VAL-23
+PU-090-inp,inp,PHPUnit: アンケート(選択肢1個),本ケース専用の企業と管理者を新規作成しログイン済み,単一選択設問の選択肢を 1 個に減らす,公開実行,「選択肢は 2 個以上 10 個以内で入力してください」422 または errors に該当メッセージが含まれ作成されない,"layer:unit, target:surveyFormState + StoreSurveyRequest。旧 E2E-100 から E2E 移行",VAL-24
+PU-091-inp,inp,PHPUnit: アンケート(選択肢11個),本ケース専用の企業と管理者を新規作成しログイン済み,選択肢を 11 個追加,公開実行,「選択肢は 2 個以上 10 個以内で入力してください」422 または errors に該当メッセージが含まれ作成されない,"layer:unit, target:surveyFormState + StoreSurveyRequest。旧 E2E-101 から E2E 移行",VAL-24
+PU-092-inp,inp,PHPUnit: アンケート(選択肢2個境界),本ケース専用の企業・管理者を作成済み,選択肢 2 個ちょうど,公開実行,作成成功する,"layer:unit, target:surveyFormState + StoreSurveyRequest。旧 E2E-102 から E2E 移行",VAL-24
+PU-093-inp,inp,PHPUnit: アンケート(選択肢10個境界),本ケース専用の企業・管理者を作成済み,選択肢 10 個ちょうど,公開実行,作成成功し回答画面に 10 個の選択肢が表示される,"layer:unit, target:surveyFormState + StoreSurveyRequest。旧 E2E-103 から E2E 移行",VAL-24
+PU-094-inp,inp,PHPUnit: アンケート(選択肢ラベル空),本ケース専用の企業と管理者を新規作成しログイン済み,選択肢 2 個のうち 1 個を空欄,公開実行,「選択肢は必須です」422 または errors に該当メッセージが含まれ作成されない,"layer:http, target:POST /surveys。旧 E2E-104 から E2E 移行",VAL-25
+PU-095-inp,inp,PHPUnit: アンケート(選択肢101文字),本ケース専用の企業と管理者を新規作成しログイン済み,101 文字の選択肢ラベル,公開実行,「選択肢は 100 文字以内で入力してください」422 または errors に該当メッセージが含まれ作成されない,"layer:http, target:POST /surveys。旧 E2E-105 から E2E 移行",VAL-25
+PU-096-inp,inp,PHPUnit: アンケート(過去締切で公開),本ケース専用の企業と管理者を新規作成しログイン済み,締切日時に過去日時(2020-01-01 00:00),公開実行,「締切日時は未来の日時を指定してください」422 または errors に該当メッセージが含まれ公開されない,"layer:unit, target:SurveyService::publish。旧 E2E-106 から E2E 移行",VAL-26
+PU-097-inp,inp,PHPUnit: アンケート(未来締切で公開),本ケース専用の企業・管理者を作成済み,締切日時に未来日時(翌年末),公開実行,公開成功し管理一覧に設定した締切日時が表示される,"layer:unit, target:SurveyService::publish。旧 E2E-107 から E2E 移行",VAL-26
+PU-100-inp,inp,PHPUnit: 回答(任意設問未回答),本ケース専用の公開アンケート(必須 OFF の自由記述 1 問)とユーザーを作成済み,何も入力せず送信,回答画面で送信,送信成功し回答済一覧に移動する,"layer:http, target:POST /my/surveys/{id}。旧 E2E-121 から E2E 移行",VAL-28
+PU-101-inp,inp,PHPUnit: 回答(自由記述1001文字),本ケース専用の公開アンケート(自由記述)とユーザーを作成済み,1001 文字を入力して送信,回答画面で送信,「1000 文字以内で入力してください」422 または errors に該当メッセージが含まれ保存されない,"layer:http, target:POST /my/surveys/{id}。旧 E2E-122 から E2E 移行",VAL-29
+PU-102-inp,inp,PHPUnit: 回答(自由記述1000文字境界),本ケース専用の公開アンケート(自由記述)とユーザーを作成済み,1000 文字ちょうどを入力して送信,回答画面で送信,送信成功し再表示で 1000 文字が保持されている,"layer:http, target:POST /my/surveys/{id}。旧 E2E-123 から E2E 移行",VAL-29
+PU-103-inp,inp,PHPUnit: ユーザー編集(メール空更新),本ケース専用のユーザー(メール=m1@…)を作成済み,メールアドレスを空にして保存,編集画面で保存実行,「メールアドレスは必須です」422 または errors に該当メッセージが含まれ一覧のメールは m1@… のまま,"layer:http, target:PUT /users/{id}。旧 E2E-169 から E2E 移行",VAL-09
+PU-104-inp,inp,PHPUnit: アンケート編集(説明空上書き),本ケース専用の下書きアンケート(説明あり)を作成済み,説明を空にして保存,編集画面で保存実行,再表示で説明が空になっている(空値上書き),"layer:http, target:PUT /surveys/{id}。旧 E2E-171 から E2E 移行",画面項目 S-07(説明)
+PU-105-inp,inp,PHPUnit: アンケート編集(締切空上書き),本ケース専用の下書きアンケート(締切あり)を作成済み,締切日時を空にして保存,編集画面で保存実行,再表示で締切が空になり一覧の締切表示も空になる(無期限),"layer:http, target:PUT /surveys/{id}。旧 E2E-172 から E2E 移行",画面項目 S-07(締切日時)
+PU-106-inp,inp,PHPUnit: アンケート(説明1000文字境界),本ケース専用の企業と管理者を新規作成しログイン済み,説明に 1000 文字ちょうど,公開実行,作成成功し管理一覧に表示される,"layer:http, target:POST /surveys。旧 E2E-173 から E2E 移行",VAL-20
+PU-107-inp,inp,PHPUnit: アンケート(設問文500文字境界),本ケース専用の企業と管理者を新規作成しログイン済み,設問文に 500 文字ちょうど,公開実行,作成成功し回答画面に 500 文字の設問文が表示される,"layer:http, target:POST /surveys。旧 E2E-174 から E2E 移行",VAL-22
+PU-108-inp,inp,PHPUnit: アンケート(選択肢100文字境界),本ケース専用の企業と管理者を新規作成しログイン済み,選択肢ラベルに 100 文字ちょうど,公開実行,作成成功する,"layer:http, target:POST /surveys。旧 E2E-175 から E2E 移行",VAL-25
+PU-109-inp,inp,PHPUnit: 部署登録(100文字境界),本ケース専用の企業と管理者を新規作成しログイン済み,100 文字ちょうどの部署名,登録実行,登録成功し部署一覧に表示される,"layer:http, target:POST /departments。旧 E2E-176 から E2E 移行",VAL-14
+PU-110-inp,inp,PHPUnit: ユーザー登録(パスワード255文字境界),本ケース専用の企業と管理者を新規作成しログイン済み,パスワードに 255 文字ちょうど,登録後にそのアカウントでログイン,登録成功しそのパスワードでログインできる,"layer:http, target:POST /users。旧 E2E-177 から E2E 移行",VAL-12
+PU-111-inp,inp,PHPUnit: ユーザー登録(パスワード256文字),本ケース専用の企業と管理者を新規作成しログイン済み,パスワードに 256 文字,登録実行,「パスワードは 255 文字以内で入力してください」422 または errors に該当メッセージが含まれ登録されない,"layer:http, target:POST /users。旧 E2E-178 から E2E 移行",画面項目 S-04(パスワード)
+PU-112-inp,inp,PHPUnit: CSV(パスワード255文字境界),本ケース専用の企業・管理者を作成済み,パスワード列が 255 文字の 1 行 CSV,アップロード→確認→確定,取込成功しそのパスワードで当該ユーザーがログインできる,"layer:integration, target:UserCsvImportService。旧 E2E-179 から E2E 移行",画面項目 S-05(CSV 列パスワード)
+PU-113-inp,inp,PHPUnit: CSV(パスワード256文字行),本ケース専用の企業と管理者を新規作成しログイン済み,パスワード列が 256 文字の 1 行 CSV,アップロード実行,「1 行目: パスワード — 8〜255 文字で入力してください」422 または errors に該当メッセージが含まれ登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-180 から E2E 移行",VAL-18
+PU-114-inp,inp,PHPUnit: CSV(氏名100文字境界),本ケース専用の企業・管理者を作成済み,氏名列が 100 文字の 1 行 CSV,アップロード→確認→確定,取込成功しユーザー一覧に 100 文字の氏名が表示される,"layer:integration, target:UserCsvImportService。旧 E2E-181 から E2E 移行",画面項目 S-05(CSV 列氏名)
+PU-115-inp,inp,PHPUnit: CSV(氏名101文字行),本ケース専用の企業と管理者を新規作成しログイン済み,氏名列が 101 文字の 1 行 CSV,アップロード実行,「1 行目: 氏名 — 100 文字以内で入力してください」422 または errors に該当メッセージが含まれ登録されない,"layer:unit, target:UserCsvImportService。旧 E2E-182 から E2E 移行",VAL-18
+PU-116-inp,inp,PHPUnit: ログイン(メール未入力),未ログイン,メール空欄・パスワード入力,POST /login,422 レスポンスに「メールアドレスは必須です」が含まれセッション未確立,"layer:http, target:POST /login",VAL-02
+PU-117-inp,inp,PHPUnit: 公開後アンケートの設問変更(HTTP),公開アンケートを作成済み,設問構成を変更する payload,PUT /surveys/{id},422 レスポンスに「公開後のアンケートの設問は変更できません」が含まれ questions テーブルが不変,"layer:http, target:PUT /surveys/{id}。PU-022 Service テストと対",VAL-27
+PU-118-evt,evt,SurveyService::close(公開→終了),公開アンケートを作成済み,なし,close() を実行,status=closed に更新され DB に反映される,E2E-088 の Service 層。02-design §2.2 SurveyService::close,UC-21
+PU-119-auth,auth,CompanyContext::requireCompany(企業未選択),SU で企業ビュー未選択,なし,requireCompany() を実行,403 相当の例外または abort(403) が発生,CompanyContext::requireCompany。旧 E2E-083/191 は PU-120/142 へ移行,UC-09
+PU-120-auth,auth,HTTP GET /users/import（スーパーユーザー(企業ビュー未選択)）,スーパーユーザーでログイン済み(企業ビュー未選択),URL 直接入力,スーパーユーザー(企業ビュー未選択)のセッションで GET /users/import を送信,403 が返る,"layer:http, target:GET /users/import。旧 E2E-083 から E2E 移行（認可網羅）",権限 ユーザー登録(CSV)×スーパーユーザー(企業ビュー)
+PU-121-auth,auth,HTTP GET /companies（管理者）,本ケース専用の管理者でログイン済み,URL 直接入力,管理者のセッションで GET /companies を送信,403 が返る,"layer:http, target:GET /companies。旧 E2E-145 から E2E 移行（認可網羅）",NFR-03
+PU-122-auth,auth,HTTP GET /admin/home（管理者）,本ケース専用の管理者でログイン済み,URL 直接入力,管理者のセッションで GET /admin/home を送信,403 が返る,"layer:http, target:GET /admin/home。旧 E2E-146 から E2E 移行（認可網羅）",NFR-03
+PU-123-auth,auth,HTTP GET /dashboard（ユーザー）,本ケース専用のユーザーでログイン済み,URL 直接入力,ユーザーのセッションで GET /dashboard を送信,403 が返る,"layer:http, target:GET /dashboard。旧 E2E-147 から E2E 移行（認可網羅）",AC-30 NFR-03
+PU-124-auth,auth,HTTP GET /surveys（ユーザー）,本ケース専用のユーザーでログイン済み,URL 直接入力,ユーザーのセッションで GET /surveys を送信,403 が返る,"layer:http, target:GET /surveys。旧 E2E-148 から E2E 移行（認可網羅）",NFR-03
+PU-125-auth,auth,HTTP GET /users（ユーザー）,本ケース専用のユーザーでログイン済み,URL 直接入力,ユーザーのセッションで GET /users を送信,403 が返る,"layer:http, target:GET /users。旧 E2E-149 から E2E 移行（認可網羅）",NFR-03
+PU-126-auth,auth,HTTP GET /companies（ユーザー）,本ケース専用のユーザーでログイン済み,URL 直接入力,ユーザーのセッションで GET /companies を送信,403 が返る,"layer:http, target:GET /companies。旧 E2E-150 から E2E 移行（認可網羅）",NFR-03
+PU-127-auth,auth,HTTP GET /departments（ユーザー）,本ケース専用のユーザーでログイン済み,URL 直接入力,ユーザーのセッションで GET /departments を送信,403 が返る,"layer:http, target:GET /departments。旧 E2E-151 から E2E 移行（認可網羅）",NFR-03
+PU-128-auth,auth,HTTP GET /api/surveys/{id}/results（他社アンケート(管理者)）,別々の専用企業 A・B と B の公開アンケートを作成済み,URL 直接入力,他社アンケート(管理者)のセッションで GET /api/surveys/{id}/results を送信,404 が返る,"layer:http, target:GET /api/surveys/{id}/results。旧 E2E-152 から E2E 移行（認可網羅）",NFR-04 AC-29
+PU-129-auth,auth,HTTP GET /users/{id}/edit（他社ユーザー(管理者)）,別々の専用企業 A・B と B のユーザーを作成済み,URL 直接入力,他社ユーザー(管理者)のセッションで GET /users/{id}/edit を送信,404 が返る,"layer:http, target:GET /users/{id}/edit。旧 E2E-153 から E2E 移行（認可網羅）",NFR-04 AC-29
+PU-130-auth,auth,HTTP GET /departments/{id}/edit（他社部署(管理者)）,別々の専用企業 A・B と B の部署を作成済み,URL 直接入力,他社部署(管理者)のセッションで GET /departments/{id}/edit を送信,404 が返る,"layer:http, target:GET /departments/{id}/edit。旧 E2E-154 から E2E 移行（認可網羅）",NFR-04 AC-29
+PU-131-auth,auth,HTTP GET /surveys/{id}/edit（他社アンケート(管理者)）,別々の専用企業 A・B と B のアンケートを作成済み,URL 直接入力,他社アンケート(管理者)のセッションで GET /surveys/{id}/edit を送信,404 が返る,"layer:http, target:GET /surveys/{id}/edit。旧 E2E-155 から E2E 移行（認可網羅）",NFR-04
+PU-132-auth,auth,HTTP GET /my/surveys/{id}（他社アンケート(ユーザー)）,別々の専用企業 A・B と B の公開アンケートを作成済み,URL 直接入力,他社アンケート(ユーザー)のセッションで GET /my/surveys/{id} を送信,404 が返る,"layer:http, target:GET /my/surveys/{id}。旧 E2E-156 から E2E 移行（認可網羅）",NFR-04
+PU-133-auth,auth,HTTP GET /my/surveys（スーパーユーザー）,スーパーユーザーでログイン済み,URL 直接入力,スーパーユーザーのセッションで GET /my/surveys を送信,403 が返る,"layer:http, target:GET /my/surveys。旧 E2E-157 から E2E 移行（認可網羅）",権限 アンケート回答×スーパーユーザー
+PU-134-auth,auth,HTTP GET /my/surveys（管理者）,本ケース専用の管理者でログイン済み,URL 直接入力,管理者のセッションで GET /my/surveys を送信,403 が返る,"layer:http, target:GET /my/surveys。旧 E2E-158 から E2E 移行（認可網羅）",権限 アンケート回答×管理者
+PU-135-auth,auth,HTTP GET /admin/home（ユーザー）,本ケース専用のユーザーでログイン済み,URL 直接入力,ユーザーのセッションで GET /admin/home を送信,403 が返る,"layer:http, target:GET /admin/home。旧 E2E-167 から E2E 移行（認可網羅）",NFR-03
+PU-136-auth,auth,HTTP GET /users/import（ユーザー）,本ケース専用のユーザーでログイン済み,URL 直接入力,ユーザーのセッションで GET /users/import を送信,403 が返る,"layer:http, target:GET /users/import。旧 E2E-168 から E2E 移行（認可網羅）",NFR-03
+PU-137-auth,auth,HTTP GET /users/{id}/edit（ユーザー(他ユーザー)）,本ケース専用の企業にユーザー 2 名を作成済み,URL 直接入力,ユーザー(他ユーザー)のセッションで GET /users/{id}/edit を送信,403 が返る,"layer:http, target:GET /users/{id}/edit。旧 E2E-186 から E2E 移行（認可網羅）",NFR-03
+PU-138-auth,auth,HTTP DELETE /users/{id}（ユーザー(他ユーザー)）,本ケース専用の企業にユーザー 2 名を作成済み,DELETE リクエスト送信,ユーザー(他ユーザー)のセッションで DELETE /users/{id} を送信,403 が返り DB が変更されない,"layer:http, target:DELETE /users/{id}。旧 E2E-187 から E2E 移行（認可網羅）",NFR-03
+PU-139-auth,auth,HTTP GET /surveys/{id}/edit（ユーザー）,本ケース専用の企業と下書きアンケートを作成済み,URL 直接入力,ユーザーのセッションで GET /surveys/{id}/edit を送信,403 が返る,"layer:http, target:GET /surveys/{id}/edit。旧 E2E-188 から E2E 移行（認可網羅）",NFR-03
+PU-140-auth,auth,HTTP POST /surveys/{id}/publish（ユーザー）,本ケース専用の企業と下書きアンケートを作成済み,POST リクエスト送信,ユーザーのセッションで POST /surveys/{id}/publish を送信,403 が返り DB が変更されない,"layer:http, target:POST /surveys/{id}/publish。旧 E2E-189 から E2E 移行（認可網羅）",NFR-03
+PU-141-auth,auth,HTTP DELETE /surveys/{id}（ユーザー）,本ケース専用の企業と公開アンケートを作成済み,DELETE リクエスト送信,ユーザーのセッションで DELETE /surveys/{id} を送信,403 が返り DB が変更されない,"layer:http, target:DELETE /surveys/{id}。旧 E2E-190 から E2E 移行（認可網羅）",NFR-03
+PU-142-auth,auth,HTTP GET /departments（スーパーユーザー(全体ビュー)）,スーパーユーザーでログイン済み(企業ビュー未選択),URL 直接入力,スーパーユーザー(全体ビュー)のセッションで GET /departments を送信,403 が返る,"layer:http, target:GET /departments。旧 E2E-191 から E2E 移行（認可網羅）",権限 部署登録・編集・削除×スーパーユーザー(企業ビュー)
+PU-143-inp,inp,PHPUnit: 部署登録(別企業同名OK),専用企業 A・B を作成済み,各社で部署名「営業部」を登録,POST /departments を企業 A・B それぞれで実行,両方とも登録成功し各社の部署一覧に「営業部」が表示される,"layer:http, target:POST /departments。VAL-15 別企業 OK",VAL-15
+PU-144-dsp,dsp,HTTP GET 企業編集(コード変更不可),本ケース専用の企業を登録済み,編集画面を GET,GET /companies/{id}/edit,レスポンス HTML に企業コード入力が readonly または disabled で企業名のみ編集可能,"layer:http, target:GET /companies/{id}/edit。旧 E2E-025 から移行",画面項目 S-02a(企業コード)
+PU-145-dsp,dsp,HTTP GET ユーザー編集(企業・ロール変更不可),本ケース専用のユーザーを作成済み,編集画面を GET,GET /users/{id}/edit,レスポンス HTML に所属企業とロールが readonly または disabled,"layer:http, target:GET /users/{id}/edit。旧 E2E-051 から移行",画面項目 S-04a(企業/ロール)
+PU-146-dsp,dsp,HTTP GET アンケート管理一覧(表示項目),本ケース専用の公開アンケート(回答 1 件)を作成済み,一覧を GET,GET /surveys,レスポンス HTML にタイトル・状態・締切・回答数・作成日の列見出しがあり回答数に 1 が含まれる,"layer:http, target:GET /surveys。旧 E2E-110 から移行",画面項目 S-06(一覧)
+PU-148-evt,evt,ユーザー部署変更と集計反映,本ケース専用の企業に部署 営業部・総務部とユーザー(営業部)・回答 1 件を作成済み,ユーザーの部署を総務部に PUT,PUT /users/{id} で department_id を変更,DB の department_id が総務部になり SurveyResultService の部署=総務部絞り込みで件数 1 が返る,"layer:integration, target:SurveyResultService + PUT /users。旧 E2E-044 から移行",UC-14 AC-13
+PU-149-auth,auth,HTTP GET /users/import（SU 企業ビュー）,本ケース専用の企業を作成し SU で企業ビューに切替済み,URL 直接入力,SU(企業ビュー)のセッションで GET /users/import を送信,200 が返り CSV アップロードフォームが HTML に含まれる,"layer:http, target:GET /users/import。旧 E2E-165 から移行",権限 ユーザー登録(CSV)×スーパーユーザー(企業ビュー)
