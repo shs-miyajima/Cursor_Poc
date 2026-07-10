@@ -27,6 +27,11 @@ description: >-
 - [ ] Laravel / フロント（Blade / Vite / JS）の責務分界を記載
 - [ ] バリデーション（§7: VAL-xx）・受け入れ条件（§11: AC-xx）・非機能要件（§9: NFR-xx）に一意な ID を付与
 - [ ] テンプレート §13「承認依頼前セルフチェック」を全項目確認
+- [ ] **承認確認を提示する前に**、専用レビューサブエージェント `sdd-requirements-reviewer`
+      （定義: `.cursor/agents/sdd-requirements-reviewer.md`、readonly、新規セッション）を起動し、
+      `01-requirements-review-checklist.md` の全項目を検証させる（スコープはコードベース検索で裏取り）
+- [ ] 指摘のうち機械的に修正可能なものはその場で修正し、`01-requirements-review-checklist.md` に結果を記録する
+- [ ] 仕様解釈・業務方針の変更を伴う指摘は自動修正せず、承認確認に含めて人間に提示する
 - [ ] 確定後、ユーザー承認を得て `01-requirements.status` を `approved` に
 
 **停止**: 承認までフェーズ 2 に進まない

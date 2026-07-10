@@ -30,7 +30,7 @@ docs/specs/
 
 | フェーズ | 成果物 | 承認ファイル |
 |---------|--------|-------------|
-| 1. 仕様整理 | `01-requirements.md`, `open-questions.md`, `effort-report.md`（見積） | `01-requirements.status` |
+| 1. 仕様整理 | `01-requirements.md`, `open-questions.md`, `effort-report.md`（見積）, `01-requirements-review-checklist.md`（AI 独立レビュー結果） | `01-requirements.status` |
 | 2. 設計 | `02-design.md`, `02-design-review-checklist.md`（AI 独立レビュー結果） | `02-design.status` |
 | 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時）, `03-test-plan-review-checklist.md`（AI 独立レビュー結果） | `03-test-plan.status` |
 | 4. 実装・テスト | コード・テストコード, `04-completion-report.md` | — |
@@ -44,7 +44,7 @@ status ファイルは 1 行目に状態、2 行目以降に `date:`（更新日
 承認・差戻しのたびに `changelog.md` へ記録します。承認済みの成果物を変更する場合は
 差分承認（`draft` に戻して再承認）の手順に従います。
 
-フェーズ 2（設計）とフェーズ 3（テスト設計）では、承認確認の前に読み取り専用
+フェーズ 1（仕様整理）・フェーズ 2（設計）・フェーズ 3（テスト設計）では、承認確認の前に読み取り専用
 サブエージェントによる **AI 独立レビュー**を行い、結果を各レビューチェックリストに残します
 （人間の承認を代替するものではありません）。
 

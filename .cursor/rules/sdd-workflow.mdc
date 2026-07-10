@@ -27,7 +27,7 @@ alwaysApply: true
 
 | フェーズ | 成果物 | 承認ファイル |
 |---------|--------|-------------|
-| 1. 仕様整理 | `01-requirements.md`, `open-questions.md`, `effort-report.md`（見積） | `01-requirements.status` |
+| 1. 仕様整理 | `01-requirements.md`, `open-questions.md`, `effort-report.md`（見積）, `01-requirements-review-checklist.md`（AI 独立レビュー結果） | `01-requirements.status` |
 | 2. 設計 | `02-design.md`, `02-design-review-checklist.md`（AI 独立レビュー結果） | `02-design.status` |
 | 3. テスト設計 | `03-test-plan.md`, `03-test-plan.csv`, `03-test-plan-phpunit.csv`（該当時）, `03-test-plan-vitest.csv`（該当時）, `03-test-plan-review-checklist.md`（AI 独立レビュー結果） | `03-test-plan.status` |
 | 4. 実装・テスト | コード・テストコード, `04-completion-report.md` | — |
@@ -110,6 +110,26 @@ phase: 01-requirements
   テスト設計フェーズのトレーサビリティ（要件カバレッジ表）で参照する
 - 承認確認を提示する前に、テンプレート末尾の「承認依頼前セルフチェック」を全項目確認する
 
+### 独立レビュー（承認確認前に必須）
+
+要件の内部矛盾・検証不能な記述は下流（設計・テスト設計）でのやり直しコストが大きいため、
+`01-requirements.md` の確定案を作成したら、**承認確認を提示する前に**独立レビューを行う。
+
+1. 作成した本人（同一会話・同一コンテキストの AI）ではなく、**専用のレビューサブエージェント
+   `sdd-requirements-reviewer`**（定義: `.cursor/agents/sdd-requirements-reviewer.md`、readonly、
+   会話コンテキストを引き継がない新規セッション）を起動する
+2. レビュー対象として `01-requirements.md` / `open-questions.md` のパスと、チェックリスト
+   `docs/specs/<slug>/01-requirements-review-checklist.md` を渡し、全項目を ✓ / ✕ と理由で判定させる。
+   スコープ・既存資産は `routes/` / `resources/` / `AGENTS.md` 等をコードベース検索して裏取りする
+3. 指摘のうち**機械的に修正可能なもの**（ID 欠番、§5.2↔§7 不一致、曖昧語、open-questions 未解決の
+   ままの確定表記等）はメインの AI がその場で修正する
+4. **仕様の解釈・業務方針の変更を伴う指摘は自動修正せず**、承認確認の提示にレビュー結果の
+   サマリ（残った指摘事項とその理由）を含めて人間に判断を仰ぐ
+5. レビュー結果は `01-requirements-review-checklist.md` に記入し、成果物として残す
+
+業務妥当性（ドメインルールが正しいか）の最終判断は人間が行う。AI 独立レビューは
+仕様完全性・内部整合性・検証可能性を対象とする。
+
 ## フェーズ 2: 設計
 
 - `01-requirements.status` が `approved` の場合のみ着手
@@ -137,7 +157,7 @@ phase: 01-requirements
    サマリ（残った指摘事項とその理由）を含めて人間に判断を仰ぐ
 5. レビュー結果は `02-design-review-checklist.md` に記入し、成果物として残す
 
-### レビューサブエージェント共通の呼び出し規約（フェーズ 2・3 共通）
+### レビューサブエージェント共通の呼び出し規約（フェーズ 1・2・3 共通）
 
 サブエージェントから呼び出し元に届くのは**最終メッセージの本文だけ**である。
 無駄な再呼び出し（往復）を防ぐため、以下を守る。
