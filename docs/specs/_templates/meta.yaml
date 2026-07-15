@@ -5,6 +5,9 @@ status: draft
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 
+# design の位置づけ: canonical（画面正本）| reference（参考）| none（なし）
+design_mode: TBD
+
 # 関連パス（実装開始後に追記）
 laravel:
   controllers: []
@@ -18,5 +21,5 @@ e2e:
 vitest:
   test_files: []
 
-# 参照元（正本は specs 内の Markdown）
+# 参照元（機能正本は specs 内の Markdown。canonical の designs/ は画面正本）
 source_documents: []

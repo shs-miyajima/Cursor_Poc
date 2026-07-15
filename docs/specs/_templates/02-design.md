@@ -61,6 +61,20 @@
 
 <!-- resources/js/ は JavaScript のみ。TypeScript は E2E（Playwright）専用 -->
 
+### 3.3 Design資料の実装方針（該当時）
+
+<!--
+meta.yaml の design_mode を記載する。
+- canonical: 画面ごとに HTML→Blade、CSS→Tailwind、操作→JavaScript、データ/業務処理→Laravel の
+  変換方針、共通部品、レスポンシブ、UI状態、除外するプロトタイプ専用要素を記載する
+- reference: 参考にする要素、採用しない要素、既存UIを優先する箇所を記載する
+- none: 「対象外」と記載する
+-->
+
+| design_mode | 対象画面・資料 | 採用・変換方針 | 採用しない要素・理由 |
+|-------------|---------------|---------------|---------------------|
+| | | | |
+
 ## 4. シーケンス（主要フロー）
 
 ```

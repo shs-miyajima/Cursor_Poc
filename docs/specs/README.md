@@ -4,6 +4,13 @@
 
 仕様は **Markdown** で管理します。
 
+開発に不慣れな業務担当者・企画担当者向けの進め方は
+[`sdd-human-guide.md`](sdd-human-guide.md) を参照してください。機能specとdesign資料の準備、
+人間とAIの役割、各フェーズの作業・レビュー・承認方法を説明しています。
+
+design資料の位置づけは、機能ごとの `meta.yaml` の `design_mode` で指定します。
+`canonical`（画面正本）/ `reference`（参考）/ `none`（なし）の3種類です。
+
 ## ディレクトリ構成
 
 ```
