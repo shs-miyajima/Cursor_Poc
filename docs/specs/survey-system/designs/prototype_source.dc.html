@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@400;500;700&family=Shippori+Mincho:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { --ac:#4b53e0; --ac-d:#3a41c4; --ac-l:#6d77e8; --ac-soft:#eef0fe; --ac-border:#c9cdf5; font-family: 'Noto Sans JP', system-ui, sans-serif; color: #171a1f; background: #eceef1; -webkit-font-smoothing: antialiased; }
+  a { color: var(--ac); text-decoration: none; }
+  a:hover { color: var(--ac-d); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #cfd4db; border-radius: 6px; border: 2px solid transparent; background-clip: content-box; }
+  input, select, textarea, button { font-family: inherit; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #eceef1; --ac: {{ acVar }}; --ac-d: {{ acDVar }}; --ac-l: {{ acLVar }}; --ac-soft: {{ acSoftVar }}; --ac-border: {{ acBorderVar }}; font-family: {{ fontStack }};">
+
+  <!-- demo strip -->
+  <div style="background: #14161c; color: #e8eaf0; display: flex; align-items: center; gap: 18px; padding: 8px 18px; font-size: 12.5px;">
+    <span style="display:flex; align-items:center; gap:7px; font-weight:700; letter-spacing:.02em;"><span style="width:8px;height:8px;border-radius:50%;background:#5be0a0;display:inline-block;"></span>プロトタイプ</span>
+    <span style="color:#8b93a6;">ロール切替</span>
+    <div style="display:flex; background:#242833; border-radius:8px; padding:3px;">
+      <button data-role="super" onClick="{{ setRole }}" style="border:0; cursor:pointer; padding:5px 12px; border-radius:6px; font-size:12.5px; font-weight:500; background: {{ superBtnBg }}; color: {{ superBtnColor }};">スーパーユーザー</button>
+      <button data-role="admin" onClick="{{ setRole }}" style="border:0; cursor:pointer; padding:5px 12px; border-radius:6px; font-size:12.5px; font-weight:500; background: {{ adminBtnBg }}; color: {{ adminBtnColor }};">管理者</button>
+      <button data-role="user" onClick="{{ setRole }}" style="border:0; cursor:pointer; padding:5px 12px; border-radius:6px; font-size:12.5px; font-weight:500; background: {{ userBtnBg }}; color: {{ userBtnColor }};">ユーザー</button>
+    </div>
+    <span style="margin-left:auto; color:#8b93a6;">アンケート作成・回答・集計システム</span>
+  </div>
+
+  <div style="display: flex; flex: 1; min-height: 0; zoom: {{ densityZoom }};">
+    <!-- sidebar -->
+    <aside style="width: 248px; flex-shrink: 0; background: #ffffff; border-right: 1px solid #e6e8ec; display: flex; flex-direction: column; padding: 18px 14px; gap: 4px;">
+      <div style="display:flex; align-items:center; gap:10px; padding: 6px 8px 16px;">
+        <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--ac),var(--ac-l));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;">S</div>
+        <div>
+          <div style="font-weight:700; font-size:15px; line-height:1.1;">Survey Console</div>
+          <div style="font-size:11px; color:#8b94a3; margin-top:2px;">社内アンケート基盤</div>
+        </div>
+      </div>
+
+      <sc-if value="{{ navSuper }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:11px; color:#9aa2b1; font-weight:500; padding:8px 10px 4px;">全社管理</div>
+        <button data-screen="companies" onClick="{{ go }}" style="{{ navCompaniesStyle }}">企業一覧</button>
+      </sc-if>
+
+      <sc-if value="{{ navAdmin }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:11px; color:#9aa2b1; font-weight:500; padding:8px 10px 4px;">{{ orgName }}</div>
+        <button data-screen="home" onClick="{{ go }}" style="{{ navHomeStyle }}">ホーム</button>
+        <button data-screen="surveys" onClick="{{ go }}" style="{{ navSurveysStyle }}">アンケート</button>
+        <button data-screen="dashboard" onClick="{{ go }}" style="{{ navDashStyle }}">集計ダッシュボード</button>
+        <div style="font-size:11px; color:#9aa2b1; font-weight:500; padding:14px 10px 4px;">組織管理</div>
+        <button data-screen="users" onClick="{{ go }}" style="{{ navUsersStyle }}">ユーザー</button>
+        <button data-screen="departments" onClick="{{ go }}" style="{{ navDeptsStyle }}">部署マスタ</button>
+        <sc-if value="{{ showAdminsNav }}" hint-placeholder-val="{{ false }}">
+          <button data-screen="admins" onClick="{{ go }}" style="{{ navAdminsStyle }}">管理者</button>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ navUser }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:11px; color:#9aa2b1; font-weight:500; padding:8px 10px 4px;">アンケート</div>
+        <button data-screen="usurveys" onClick="{{ go }}" style="{{ navUSurveysStyle }}">回答する</button>
+      </sc-if>
+
+      <div style="margin-top:auto; border-top:1px solid #eef0f3; padding-top:12px; display:flex; align-items:center; gap:9px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--ac-soft);color:var(--ac);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">{{ avatarInitial }}</div>
+        <div style="min-width:0;">
+          <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ userName }}</div>
+          <div style="font-size:11px; color:#8b94a3;">{{ roleLabel }}</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- main -->
+    <main style="flex:1; min-width:0; display:flex; flex-direction:column; overflow:auto;">
+
+      <!-- acting banner (super in company) -->
+      <sc-if value="{{ showActingBanner }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff7 e6; background:#fef6e7; border-bottom:1px solid #f4e2b8; padding:9px 28px; display:flex; align-items:center; gap:12px; font-size:13px; color:#8a6216;">
+          <span style="font-weight:700;">代理操作中</span>
+          <span>{{ orgName }}（{{ orgCode }}）の個別企業画面を表示しています。</span>
+          <button onClick="{{ exitCompany }}" style="margin-left:auto; border:1px solid #d9c07f; background:#fff; color:#8a6216; padding:5px 12px; border-radius:7px; font-size:12.5px; cursor:pointer; font-weight:500;">全体画面へ戻る</button>
+        </div>
+      </sc-if>
+
+      <!-- ============ SUPER: companies ============ -->
+      <sc-if value="{{ showCompanies }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 26px 32px;">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:22px;">
+            <div>
+              <h1 style="margin:0; font-size:22px; font-weight:700;">企業一覧</h1>
+              <p style="margin:6px 0 0; color:#5b6472; font-size:13.5px;">全 {{ companies.length }} 社。個別企業画面に切り替えて代理でアンケート作成・集計ができます。</p>
+            </div>
+            <button style="background:var(--ac); color:#fff; border:0; padding:10px 16px; border-radius:9px; font-size:13.5px; font-weight:500; cursor:pointer; box-shadow:0 1px 2px rgba(75,83,224,.3);">＋ 企業を登録</button>
+          </div>
+          <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; overflow:hidden;">
+            <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+              <thead>
+                <tr style="background:#fafbfc; color:#6b7280; text-align:left;">
+                  <th style="padding:13px 18px; font-weight:500; white-space:nowrap;">企業コード</th>
+                  <th style="padding:13px 18px; font-weight:500; white-space:nowrap;">企業名</th>
+                  <th style="padding:13px 18px; font-weight:500; white-space:nowrap;">ユーザー数</th>
+                  <th style="padding:13px 18px; font-weight:500; white-space:nowrap;">アンケート</th>
+                  <th style="padding:13px 18px; font-weight:500; white-space:nowrap;">状態</th>
+                  <th style="padding:13px 18px; font-weight:500; text-align:right; white-space:nowrap;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ companies }}" as="c" hint-placeholder-count="4">
+                  <tr style="border-top:1px solid #eef0f3;">
+                    <td style="padding:14px 18px; font-family:'IBM Plex Mono',monospace; color:var(--ac); font-weight:500;">{{ c.code }}</td>
+                    <td style="padding:14px 18px; font-weight:500; white-space:nowrap;">{{ c.name }}</td>
+                    <td style="padding:14px 18px; color:#5b6472;">{{ c.users }} 名</td>
+                    <td style="padding:14px 18px; color:#5b6472;">{{ c.surveys }} 件</td>
+                    <td style="padding:14px 18px;">
+                      <sc-if value="{{ c.active }}" hint-placeholder-val="{{ true }}">
+                        <span style="display:inline-flex; align-items:center; gap:6px; background:#e6f6ef; color:#0f7a52; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:500; white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#0f9d6b;"></span>有効</span>
+                      </sc-if>
+                      <sc-if value="{{ c.inactive }}" hint-placeholder-val="{{ false }}">
+                        <span style="display:inline-flex; align-items:center; gap:6px; background:#f1f2f4; color:#8b94a3; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:500; white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#aab0bb;"></span>無効</span>
+                      </sc-if>
+                    </td>
+                    <td style="padding:14px 18px; text-align:right; white-space:nowrap;">
+                      <sc-if value="{{ c.active }}" hint-placeholder-val="{{ true }}">
+                        <button data-code="{{ c.code }}" onClick="{{ enterCompany }}" style="background:var(--ac-soft); color:var(--ac); border:0; padding:7px 13px; border-radius:8px; font-size:12.5px; font-weight:500; cursor:pointer; margin-left:6px;">個別企業画面へ →</button>
+                        <button style="background:#fff; color:#5b6472; border:1px solid #e0e3e8; padding:7px 11px; border-radius:8px; font-size:12.5px; cursor:pointer; margin-left:6px;">編集</button>
+                      </sc-if>
+                      <sc-if value="{{ c.inactive }}" hint-placeholder-val="{{ false }}">
+                        <button style="background:#fff; color:#0f7a52; border:1px solid #bfe6d3; padding:7px 13px; border-radius:8px; font-size:12.5px; cursor:pointer; margin-left:6px;">再有効化</button>
+                      </sc-if>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ ADMIN: home ============ -->
+      <sc-if value="{{ showHome }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 26px 32px;">
+          <h1 style="margin:0 0 4px; font-size:22px; font-weight:700;">ホーム</h1>
+          <p style="margin:0 0 22px; color:#5b6472; font-size:13.5px;">{{ orgName }}（{{ orgCode }}）のアンケート運用状況</p>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
+            <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 20px;">
+              <div style="font-size:12.5px; color:#8b94a3;">公開中のアンケート</div>
+              <div style="font-size:28px; font-weight:700; margin-top:6px;">2</div>
+            </div>
+            <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 20px;">
+              <div style="font-size:12.5px; color:#8b94a3;">下書き</div>
+              <div style="font-size:28px; font-weight:700; margin-top:6px;">1</div>
+            </div>
+            <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 20px;">
+              <div style="font-size:12.5px; color:#8b94a3;">対象ユーザー</div>
+              <div style="font-size:28px; font-weight:700; margin-top:6px;">128</div>
+            </div>
+            <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 20px;">
+              <div style="font-size:12.5px; color:#8b94a3;">平均回答率</div>
+              <div style="font-size:28px; font-weight:700; margin-top:6px; color:var(--ac);">67<span style="font-size:16px;">%</span></div>
+            </div>
+          </div>
+          <div style="display:flex; gap:14px;">
+            <button data-screen="create" onClick="{{ go }}" style="flex:1; text-align:left; background:linear-gradient(135deg,var(--ac),var(--ac-l)); color:#fff; border:0; border-radius:14px; padding:22px 24px; cursor:pointer;">
+              <div style="font-size:16px; font-weight:700;">＋ 新しいアンケートを作成</div>
+              <div style="font-size:12.5px; opacity:.85; margin-top:6px;">4つの設問形式・記名/匿名・回答期間を設定できます</div>
+            </button>
+            <button data-screen="dashboard" onClick="{{ go }}" style="flex:1; text-align:left; background:#fff; border:1px solid #e6e8ec; border-radius:14px; padding:22px 24px; cursor:pointer;">
+              <div style="font-size:16px; font-weight:700;">集計ダッシュボードを見る</div>
+              <div style="font-size:12.5px; color:#5b6472; margin-top:6px;">属性で絞り込み、グラフで回答傾向を確認</div>
+            </button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ ADMIN: survey list ============ -->
+      <sc-if value="{{ showSurveys }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 26px 32px;">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:22px;">
+            <div>
+              <h1 style="margin:0; font-size:22px; font-weight:700;">アンケート</h1>
+              <p style="margin:6px 0 0; color:#5b6472; font-size:13.5px;">作成・公開したアンケートの一覧と回答状況</p>
+            </div>
+            <button data-screen="create" onClick="{{ go }}" style="background:var(--ac); color:#fff; border:0; padding:10px 16px; border-radius:9px; font-size:13.5px; font-weight:500; cursor:pointer; box-shadow:0 1px 2px rgba(75,83,224,.3);">＋ アンケートを作成</button>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <sc-for list="{{ surveys }}" as="v" hint-placeholder-count="4">
+              <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 22px; display:flex; align-items:center; gap:20px;">
+                <div style="flex:1; min-width:0;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <sc-if value="{{ v.isPub }}" hint-placeholder-val="{{ true }}"><span style="background:#e6f6ef; color:#0f7a52; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:500;">公開中</span></sc-if>
+                    <sc-if value="{{ v.isDraft }}" hint-placeholder-val="{{ false }}"><span style="background:#fef3e2; color:#b45309; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:500;">下書き</span></sc-if>
+                    <sc-if value="{{ v.isClosed }}" hint-placeholder-val="{{ false }}"><span style="background:#f1f2f4; color:#8b94a3; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:500;">終了</span></sc-if>
+                    <sc-if value="{{ v.anonymous }}" hint-placeholder-val="{{ false }}"><span style="border:1px solid #e0e3e8; color:#6b7280; padding:3px 9px; border-radius:20px; font-size:11.5px;">匿名</span></sc-if>
+                  </div>
+                  <div style="font-size:15.5px; font-weight:700; margin-top:9px;">{{ v.title }}</div>
+                  <div style="font-size:12.5px; color:#8b94a3; margin-top:5px;">回答期間: {{ v.period }} ・ 設問 {{ v.questions }} 問</div>
+                </div>
+                <div style="width:150px; flex-shrink:0;">
+                  <div style="display:flex; justify-content:space-between; font-size:12px; color:#5b6472; margin-bottom:5px;"><span>回答率</span><span style="font-weight:700; color:#171a1f;">{{ v.rate }}%</span></div>
+                  <div style="height:7px; background:#eef0f3; border-radius:5px; overflow:hidden;"><div style="height:100%; width:{{ v.rate }}%; background:var(--ac); border-radius:5px;"></div></div>
+                  <div style="font-size:11.5px; color:#8b94a3; margin-top:5px;">{{ v.responded }} / {{ v.target }} 名</div>
+                </div>
+                <div style="display:flex; gap:8px; flex-shrink:0;">
+                  <button data-sid="{{ v.id }}" onClick="{{ openDash }}" style="background:var(--ac-soft); color:var(--ac); border:0; padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:500; cursor:pointer;">集計を見る</button>
+                  <button data-screen="create" onClick="{{ go }}" style="background:#fff; color:#5b6472; border:1px solid #e0e3e8; padding:8px 14px; border-radius:8px; font-size:12.5px; cursor:pointer;">編集</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ ADMIN: create (A/B) ============ -->
+      <sc-if value="{{ showCreate }}" hint-placeholder-val="{{ false }}">
+        <div style="border-bottom:1px solid #e6e8ec; background:#fff; padding:14px 32px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:5;">
+          <button data-screen="surveys" onClick="{{ go }}" style="background:none; border:0; color:#5b6472; font-size:13px; cursor:pointer; padding:6px 8px;">← 一覧</button>
+          <div style="font-weight:700; font-size:15px;">アンケート編集</div>
+          <sc-if value="{{ surveyStatusPub }}" hint-placeholder-val="{{ false }}"><span style="background:#e6f6ef; color:#0f7a52; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:500;">公開中</span></sc-if>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+            <span style="font-size:12px; color:#9aa2b1;">レイアウト</span>
+            <div style="display:flex; background:#f1f2f4; border-radius:8px; padding:3px;">
+              <button data-kind="varCreate" data-val="A" onClick="{{ setVar }}" style="{{ vcABtn }}">A: フォーム型</button>
+              <button data-kind="varCreate" data-val="B" onClick="{{ setVar }}" style="{{ vcBBtn }}">B: 3ペイン型</button>
+            </div>
+            <button onClick="{{ draftSurvey }}" style="background:#fff; color:#5b6472; border:1px solid #e0e3e8; padding:8px 15px; border-radius:8px; font-size:13px; cursor:pointer;">下書き保存</button>
+            <button onClick="{{ publishSurvey }}" style="background:var(--ac); color:#fff; border:0; padding:8px 18px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer;">公開する</button>
+          </div>
+        </div>
+
+        <!-- Variation A: form builder -->
+        <sc-if value="{{ createA }}" hint-placeholder-val="{{ true }}">
+          <div style="max-width:760px; margin:0 auto; padding:26px 20px 80px; width:100%;">
+            <!-- meta card -->
+            <div style="background:#fff; border:1px solid #e6e8ec; border-top:4px solid var(--ac); border-radius:13px; padding:22px 24px; margin-bottom:18px;">
+              <input value="{{ survey.title }}" data-k="title" onInput="{{ editMeta }}" placeholder="アンケートのタイトル" style="width:100%; border:0; border-bottom:2px solid #eef0f3; font-size:20px; font-weight:700; padding:4px 2px 10px; outline:none;" />
+              <div style="display:flex; gap:22px; margin-top:18px; flex-wrap:wrap; align-items:flex-end;">
+                <div>
+                  <label style="display:block; font-size:12px; color:#8b94a3; margin-bottom:5px;">回答開始日</label>
+                  <input type="date" value="{{ survey.start }}" data-k="start" onInput="{{ editMeta }}" style="border:1px solid #e0e3e8; border-radius:8px; padding:8px 10px; font-size:13px;" />
+                </div>
+                <div>
+                  <label style="display:block; font-size:12px; color:#8b94a3; margin-bottom:5px;">回答終了日</label>
+                  <input type="date" value="{{ survey.end }}" data-k="end" onInput="{{ editMeta }}" style="border:1px solid #e0e3e8; border-radius:8px; padding:8px 10px; font-size:13px;" />
+                </div>
+                <button onClick="{{ toggleAnon }}" style="display:flex; align-items:center; gap:9px; background:none; border:0; cursor:pointer; padding:6px 0;">
+                  <span style="width:40px; height:23px; border-radius:20px; background:{{ anonTrack }}; position:relative; transition:.15s;"><span style="position:absolute; top:2px; left:{{ anonKnob }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:.15s;"></span></span>
+                  <span style="font-size:13px; color:#374151;">匿名で回答を収集</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- questions -->
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <sc-for list="{{ questions }}" as="q" hint-placeholder-count="4">
+                <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 22px;">
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <span style="background:var(--ac-soft); color:var(--ac); font-size:11.5px; font-weight:500; padding:4px 10px; border-radius:7px;">{{ q.glyph }} {{ q.typeLabel }}</span>
+                    <span style="font-size:12px; color:#9aa2b1;">設問 {{ q.idx }}</span>
+                    <div style="margin-left:auto; display:flex; gap:2px;">
+                      <button data-qid="{{ q.id }}" data-dir="up" onClick="{{ moveQuestion }}" style="border:0; background:none; cursor:pointer; color:#9aa2b1; padding:5px 7px; font-size:13px;">▲</button>
+                      <button data-qid="{{ q.id }}" data-dir="down" onClick="{{ moveQuestion }}" style="border:0; background:none; cursor:pointer; color:#9aa2b1; padding:5px 7px; font-size:13px;">▼</button>
+                      <button data-qid="{{ q.id }}" onClick="{{ removeQuestion }}" style="border:0; background:none; cursor:pointer; color:#d05f5f; padding:5px 7px; font-size:13px;">削除</button>
+                    </div>
+                  </div>
+                  <input value="{{ q.title }}" data-qid="{{ q.id }}" onInput="{{ editTitle }}" placeholder="設問文を入力" style="width:100%; border:1px solid #e6e8ec; border-radius:9px; padding:10px 12px; font-size:14.5px; outline:none; margin-bottom:12px;" />
+
+                  <sc-if value="{{ q.hasOptions }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                      <sc-for list="{{ q.options }}" as="o" hint-placeholder-count="3">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          <span style="width:15px; height:15px; border:2px solid #cfd4db; border-radius:{{ q.optRadius }};"></span>
+                          <input value="{{ o.text }}" data-qid="{{ q.id }}" data-oid="{{ o.id }}" onInput="{{ editOption }}" style="flex:1; border:0; border-bottom:1px solid #eef0f3; padding:6px 2px; font-size:13.5px; outline:none;" />
+                          <button data-qid="{{ q.id }}" data-oid="{{ o.id }}" onClick="{{ removeOption }}" style="border:0; background:none; color:#c0c5cd; cursor:pointer; font-size:15px;">×</button>
+                        </div>
+                      </sc-for>
+                      <button data-qid="{{ q.id }}" onClick="{{ addOption }}" style="align-self:flex-start; border:0; background:none; color:var(--ac); font-size:13px; cursor:pointer; padding:4px 2px;">＋ 選択肢を追加</button>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ q.isRating }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; gap:8px; color:#cfd4db;">
+                      <span style="font-size:22px;">★</span><span style="font-size:22px;">★</span><span style="font-size:22px;">★</span><span style="font-size:22px;">★</span><span style="font-size:22px;">★</span>
+                      <span style="font-size:12px; color:#9aa2b1; align-self:center; margin-left:6px;">1〜5 の段階評価</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ q.isText }}" hint-placeholder-val="{{ false }}">
+                    <div style="border:1px dashed #d8dce2; border-radius:9px; padding:12px; color:#b0b6bf; font-size:13px;">自由記述の回答欄（最大 500 文字）</div>
+                  </sc-if>
+
+                  <div style="display:flex; justify-content:flex-end; border-top:1px solid #f1f2f4; margin-top:14px; padding-top:12px;">
+                    <button data-qid="{{ q.id }}" onClick="{{ toggleRequired }}" style="display:flex; align-items:center; gap:8px; background:none; border:0; cursor:pointer;">
+                      <span style="font-size:12.5px; color:#374151;">必須</span>
+                      <span style="width:36px; height:21px; border-radius:20px; background:{{ q.reqTrack }}; position:relative;"><span style="position:absolute; top:2px; left:{{ q.reqKnob }}; width:17px; height:17px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2);"></span></span>
+                    </button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- add question -->
+            <div style="margin-top:16px;">
+              <button onClick="{{ toggleAddMenu }}" style="width:100%; border:1.5px dashed #c6cbd4; background:#fbfbfd; color:var(--ac); border-radius:12px; padding:15px; font-size:14px; font-weight:500; cursor:pointer;">＋ 設問を追加</button>
+              <sc-if value="{{ addMenu }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px; animation:fadeUp .15s ease;">
+                  <button data-qtype="single" onClick="{{ addQuestion }}" style="background:#fff; border:1px solid #e6e8ec; border-radius:11px; padding:16px 10px; cursor:pointer; text-align:center;"><div style="font-size:20px; color:var(--ac);">◉</div><div style="font-size:12.5px; margin-top:6px; font-weight:500;">単一選択</div></button>
+                  <button data-qtype="multi" onClick="{{ addQuestion }}" style="background:#fff; border:1px solid #e6e8ec; border-radius:11px; padding:16px 10px; cursor:pointer; text-align:center;"><div style="font-size:20px; color:#2aa7a0;">☑</div><div style="font-size:12.5px; margin-top:6px; font-weight:500;">複数選択</div></button>
+                  <button data-qtype="text" onClick="{{ addQuestion }}" style="background:#fff; border:1px solid #e6e8ec; border-radius:11px; padding:16px 10px; cursor:pointer; text-align:center;"><div style="font-size:20px; color:#e8934a;">¶</div><div style="font-size:12.5px; margin-top:6px; font-weight:500;">自由記述</div></button>
+                  <button data-qtype="rating" onClick="{{ addQuestion }}" style="background:#fff; border:1px solid #e6e8ec; border-radius:11px; padding:16px 10px; cursor:pointer; text-align:center;"><div style="font-size:20px; color:#d05fb0;">★</div><div style="font-size:12.5px; margin-top:6px; font-weight:500;">段階評価</div></button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Variation B: three-pane -->
+        <sc-if value="{{ createB }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; height:100%; min-height:0;">
+            <!-- outline -->
+            <div style="width:270px; flex-shrink:0; border-right:1px solid #e6e8ec; background:#fafbfc; padding:18px 14px; overflow:auto;">
+              <div style="font-size:12px; color:#9aa2b1; font-weight:500; padding:0 6px 10px;">設問一覧（{{ questions.length }}）</div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <sc-for list="{{ questions }}" as="q" hint-placeholder-count="4">
+                  <button data-qid="{{ q.id }}" onClick="{{ focusQuestion }}" style="text-align:left; border:1px solid {{ q.outlineBorder }}; background:{{ q.outlineBg }}; border-radius:9px; padding:10px 12px; cursor:pointer; display:flex; align-items:center; gap:9px;">
+                    <span style="width:22px; height:22px; border-radius:6px; background:var(--ac-soft); color:var(--ac); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">{{ q.idx }}</span>
+                    <span style="min-width:0;">
+                      <span style="display:block; font-size:12.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ q.titleOrPlaceholder }}</span>
+                      <span style="display:block; font-size:10.5px; color:#9aa2b1; margin-top:2px;">{{ q.typeLabel }}</span>
+                    </span>
+                  </button>
+                </sc-for>
+              </div>
+              <button onClick="{{ toggleAddMenu }}" style="width:100%; margin-top:12px; border:1.5px dashed #c6cbd4; background:none; color:var(--ac); border-radius:9px; padding:10px; font-size:12.5px; cursor:pointer;">＋ 設問を追加</button>
+              <sc-if value="{{ addMenu }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
+                  <button data-qtype="single" onClick="{{ addQuestion }}" style="text-align:left; background:#fff; border:1px solid #e6e8ec; border-radius:8px; padding:9px 12px; font-size:12.5px; cursor:pointer;">◉ 単一選択</button>
+                  <button data-qtype="multi" onClick="{{ addQuestion }}" style="text-align:left; background:#fff; border:1px solid #e6e8ec; border-radius:8px; padding:9px 12px; font-size:12.5px; cursor:pointer;">☑ 複数選択</button>
+                  <button data-qtype="text" onClick="{{ addQuestion }}" style="text-align:left; background:#fff; border:1px solid #e6e8ec; border-radius:8px; padding:9px 12px; font-size:12.5px; cursor:pointer;">¶ 自由記述</button>
+                  <button data-qtype="rating" onClick="{{ addQuestion }}" style="text-align:left; background:#fff; border:1px solid #e6e8ec; border-radius:8px; padding:9px 12px; font-size:12.5px; cursor:pointer;">★ 段階評価</button>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- editor -->
+            <div style="flex:1; min-width:0; padding:24px 28px; overflow:auto;">
+              <sc-if value="{{ hasFocused }}" hint-placeholder-val="{{ true }}">
+                <div style="max-width:560px;">
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+                    <span style="background:var(--ac-soft); color:var(--ac); font-size:12px; font-weight:500; padding:5px 12px; border-radius:7px;">{{ focused.glyph }} {{ focused.typeLabel }}</span>
+                    <div style="margin-left:auto; display:flex; gap:4px;">
+                      <button data-qid="{{ focused.id }}" data-dir="up" onClick="{{ moveQuestion }}" style="border:1px solid #e0e3e8; background:#fff; cursor:pointer; color:#5b6472; padding:6px 10px; border-radius:7px; font-size:12px;">▲ 上へ</button>
+                      <button data-qid="{{ focused.id }}" data-dir="down" onClick="{{ moveQuestion }}" style="border:1px solid #e0e3e8; background:#fff; cursor:pointer; color:#5b6472; padding:6px 10px; border-radius:7px; font-size:12px;">▼ 下へ</button>
+                      <button data-qid="{{ focused.id }}" onClick="{{ removeQuestion }}" style="border:1px solid #f0d2d2; background:#fff; cursor:pointer; color:#d05f5f; padding:6px 10px; border-radius:7px; font-size:12px;">削除</button>
+                    </div>
+                  </div>
+                  <label style="display:block; font-size:12px; color:#8b94a3; margin-bottom:6px;">設問文</label>
+                  <input value="{{ focused.title }}" data-qid="{{ focused.id }}" onInput="{{ editTitle }}" placeholder="設問文を入力" style="width:100%; border:1px solid #e6e8ec; border-radius:9px; padding:11px 13px; font-size:15px; outline:none; margin-bottom:20px;" />
+
+                  <sc-if value="{{ focused.hasOptions }}" hint-placeholder-val="{{ true }}">
+                    <label style="display:block; font-size:12px; color:#8b94a3; margin-bottom:8px;">選択肢</label>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                      <sc-for list="{{ focused.options }}" as="o" hint-placeholder-count="3">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          <span style="width:16px; height:16px; border:2px solid #cfd4db; border-radius:{{ focused.optRadius }};"></span>
+                          <input value="{{ o.text }}" data-qid="{{ focused.id }}" data-oid="{{ o.id }}" onInput="{{ editOption }}" style="flex:1; border:1px solid #e6e8ec; border-radius:8px; padding:9px 11px; font-size:13.5px; outline:none;" />
+                          <button data-qid="{{ focused.id }}" data-oid="{{ o.id }}" onClick="{{ removeOption }}" style="border:0; background:none; color:#c0c5cd; cursor:pointer; font-size:16px;">×</button>
+                        </div>
+                      </sc-for>
+                      <button data-qid="{{ focused.id }}" onClick="{{ addOption }}" style="align-self:flex-start; border:0; background:none; color:var(--ac); font-size:13px; cursor:pointer; padding:4px 2px;">＋ 選択肢を追加</button>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ focused.isRating }}" hint-placeholder-val="{{ false }}">
+                    <div style="background:#fafbfc; border:1px solid #eef0f3; border-radius:10px; padding:16px; display:flex; gap:8px; color:#cfd4db; align-items:center;"><span style="font-size:26px;">★★★★★</span><span style="font-size:12.5px; color:#9aa2b1; margin-left:8px;">1〜5 の段階で評価</span></div>
+                  </sc-if>
+                  <sc-if value="{{ focused.isText }}" hint-placeholder-val="{{ false }}">
+                    <div style="border:1px dashed #d8dce2; border-radius:9px; padding:16px; color:#b0b6bf; font-size:13px;">自由記述の回答欄（最大 500 文字）</div>
+                  </sc-if>
+
+                  <div style="margin-top:22px; padding-top:16px; border-top:1px solid #f1f2f4;">
+                    <button data-qid="{{ focused.id }}" onClick="{{ toggleRequired }}" style="display:flex; align-items:center; gap:9px; background:none; border:0; cursor:pointer;">
+                      <span style="width:38px; height:22px; border-radius:20px; background:{{ focused.reqTrack }}; position:relative;"><span style="position:absolute; top:2px; left:{{ focused.reqKnob }}; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2);"></span></span>
+                      <span style="font-size:13px; color:#374151;">回答を必須にする</span>
+                    </button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- live preview -->
+            <div style="width:340px; flex-shrink:0; border-left:1px solid #e6e8ec; background:#f5f6f8; padding:20px; overflow:auto;">
+              <div style="font-size:12px; color:#9aa2b1; font-weight:500; margin-bottom:12px;">回答者プレビュー</div>
+              <div style="background:#fff; border:1px solid #e6e8ec; border-radius:12px; padding:18px; box-shadow:0 4px 14px rgba(20,22,28,.05);">
+                <div style="font-size:15px; font-weight:700; margin-bottom:4px;">{{ survey.title }}</div>
+                <sc-if value="{{ survey.anonymous }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; color:#8b94a3; margin-bottom:14px;">※ 匿名アンケート</div></sc-if>
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <sc-for list="{{ questions }}" as="q" hint-placeholder-count="3">
+                    <div>
+                      <div style="font-size:13px; font-weight:500; margin-bottom:8px;">{{ q.idx }}. {{ q.titleOrPlaceholder }} <sc-if value="{{ q.required }}" hint-placeholder-val="{{ false }}"><span style="color:#d05f5f;">*</span></sc-if></div>
+                      <sc-if value="{{ q.hasOptions }}" hint-placeholder-val="{{ true }}">
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                          <sc-for list="{{ q.options }}" as="o" hint-placeholder-count="3">
+                            <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#374151;"><span style="width:14px; height:14px; border:2px solid #cfd4db; border-radius:{{ q.optRadius }};"></span>{{ o.text }}</div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ q.isRating }}" hint-placeholder-val="{{ false }}"><div style="color:#cfd4db; font-size:18px;">★★★★★</div></sc-if>
+                      <sc-if value="{{ q.isText }}" hint-placeholder-val="{{ false }}"><div style="border:1px solid #e6e8ec; border-radius:7px; height:44px; background:#fafbfc;"></div></sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- ============ ADMIN: dashboard (A/B) ============ -->
+      <sc-if value="{{ showDashboard }}" hint-placeholder-val="{{ false }}">
+        <div style="border-bottom:1px solid #e6e8ec; background:#fff; padding:14px 32px; display:flex; align-items:center; gap:14px;">
+          <div style="font-weight:700; font-size:15px; white-space:nowrap;">集計ダッシュボード</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:12px; color:#9aa2b1; white-space:nowrap;">対象アンケート</span>
+            <select value="{{ dashSurveyId }}" onChange="{{ pickDashSurvey }}" style="border:1px solid #d5d9e0; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:500; color:#171a1f; max-width:340px;">
+              <sc-for list="{{ dashSurveyOptions }}" as="o" hint-placeholder-count="3">
+                <option value="{{ o.id }}">{{ o.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:10px; flex-shrink:0;">
+            <span style="font-size:12px; color:#9aa2b1; white-space:nowrap;">レイアウト</span>
+            <div style="display:flex; background:#f1f2f4; border-radius:8px; padding:3px; white-space:nowrap;">
+              <button data-kind="varDash" data-val="A" onClick="{{ setVar }}" style="{{ vdABtn }}">A: カード</button>
+              <button data-kind="varDash" data-val="B" onClick="{{ setVar }}" style="{{ vdBBtn }}">B: 分析ビュー</button>
+            </div>
+            <div style="display:flex; background:#f1f2f4; border-radius:8px; padding:3px;">
+              <button data-ct="bar" onClick="{{ setChart }}" style="{{ barBtn }}">縦棒</button>
+              <button data-ct="pie" onClick="{{ setChart }}" style="{{ pieBtn }}">円</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dash A: cards -->
+        <sc-if value="{{ dashA }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:24px 32px;">
+            <div style="display:flex; gap:16px; margin-bottom:16px;">
+              <div style="flex:1; background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 22px;"><div style="font-size:12.5px; color:#8b94a3;">回答率</div><div style="font-size:30px; font-weight:700; margin-top:4px; color:var(--ac);">{{ rate }}<span style="font-size:17px;">%</span></div></div>
+              <div style="flex:1; background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 22px;"><div style="font-size:12.5px; color:#8b94a3;">回答者数</div><div style="font-size:30px; font-weight:700; margin-top:4px;">{{ responded }}</div></div>
+              <div style="flex:1; background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 22px;"><div style="font-size:12.5px; color:#8b94a3;">対象者数</div><div style="font-size:30px; font-weight:700; margin-top:4px;">{{ target }}</div></div>
+              <div style="flex:1; background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px 22px;"><div style="font-size:12.5px; color:#8b94a3;">設問数</div><div style="font-size:30px; font-weight:700; margin-top:4px;">{{ questions.length }}</div></div>
+            </div>
+
+            <!-- filters -->
+            <div style="background:#fff; border:1px solid #e6e8ec; border-radius:11px; padding:12px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <span style="font-size:12.5px; color:#8b94a3; font-weight:500;">絞り込み</span>
+              <select style="border:1px solid #e0e3e8; border-radius:8px; padding:7px 10px; font-size:12.5px; color:#374151;"><option>部署: すべて</option><option>人事部</option><option>営業部</option><option>開発部</option></select>
+              <select style="border:1px solid #e0e3e8; border-radius:8px; padding:7px 10px; font-size:12.5px; color:#374151;"><option>性別: すべて</option><option>男性</option><option>女性</option><option>その他</option></select>
+              <select style="border:1px solid #e0e3e8; border-radius:8px; padding:7px 10px; font-size:12.5px; color:#374151;"><option>年代: すべて</option><option>20代</option><option>30代</option><option>40代</option></select>
+              <span style="font-size:12.5px; color:#9aa2b1; margin-left:auto;">属性で絞り込むとグラフが連動します</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <sc-for list="{{ results }}" as="r" hint-placeholder-count="4">
+                <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:20px 22px;">
+                  <div style="display:flex; align-items:center; gap:9px; margin-bottom:4px;">
+                    <span style="background:var(--ac-soft); color:var(--ac); font-size:11px; font-weight:500; padding:3px 9px; border-radius:6px;">{{ r.glyph }} {{ r.typeLabel }}</span>
+                    <sc-if value="{{ r.avg }}" hint-placeholder-val="{{ false }}"><span style="font-size:11.5px; color:#8b94a3;">平均 {{ r.avg }}</span></sc-if>
+                  </div>
+                  <div style="font-size:14px; font-weight:700; margin-bottom:16px; line-height:1.4;">{{ r.title }}</div>
+
+                  <!-- text -->
+                  <sc-if value="{{ r.isText }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px; color:#8b94a3; margin-bottom:8px;">自由記述回答（{{ r.sampleCount }} 件のうち一部）</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                      <sc-for list="{{ r.samples }}" as="t" hint-placeholder-count="3">
+                        <div style="background:#fafbfc; border:1px solid #eef0f3; border-radius:8px; padding:10px 12px; font-size:12.5px; color:#374151;">{{ t }}</div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+
+                  <!-- bar -->
+                  <sc-if value="{{ r.showBar }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex; flex-direction:column; gap:9px;">
+                      <sc-for list="{{ r.bars }}" as="b" hint-placeholder-count="4">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          <span style="width:96px; flex-shrink:0; font-size:12px; color:#374151; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ b.label }}</span>
+                          <div style="flex:1; height:22px; background:#f3f4f7; border-radius:6px; overflow:hidden;"><div style="height:100%; width:{{ b.w }}%; background:{{ b.color }}; border-radius:6px;"></div></div>
+                          <span style="width:58px; flex-shrink:0; font-size:12px; color:#5b6472; font-family:'IBM Plex Mono',monospace;">{{ b.count }}<span style="color:#aab0bb;">・{{ b.pct }}%</span></span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+
+                  <!-- pie -->
+                  <sc-if value="{{ r.showPie }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; align-items:center; gap:20px;">
+                      <div style="width:130px; height:130px; border-radius:50%; flex-shrink:0; background:{{ r.pieGradient }};"></div>
+                      <div style="display:flex; flex-direction:column; gap:7px; flex:1;">
+                        <sc-for list="{{ r.pie }}" as="p" hint-placeholder-count="4">
+                          <div style="display:flex; align-items:center; gap:8px; font-size:12px;"><span style="width:11px; height:11px; border-radius:3px; background:{{ p.color }}; flex-shrink:0;"></span><span style="flex:1; color:#374151; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ p.label }}</span><span style="color:#8b94a3; font-family:'IBM Plex Mono',monospace;">{{ p.pct }}%</span></div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Dash B: analysis view -->
+        <sc-if value="{{ dashB }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; min-height:0; flex:1;">
+            <div style="width:250px; flex-shrink:0; border-right:1px solid #e6e8ec; background:#fafbfc; padding:20px 18px; overflow:auto;">
+              <div style="font-size:12px; color:#9aa2b1; font-weight:500; margin-bottom:14px;">絞り込み条件</div>
+              <div style="margin-bottom:16px;"><label style="display:block; font-size:12px; color:#8b94a3; margin-bottom:6px;">部署</label><select style="width:100%; border:1px solid #e0e3e8; border-radius:8px; padding:8px 10px; font-size:12.5px;"><option>すべて</option><option>人事部</option><option>営業部</option></select></div>
+              <div style="margin-bottom:16px;"><label style="display:block; font-size:12px; color:#8b94a3; margin-bottom:6px;">性別</label><select style="width:100%; border:1px solid #e0e3e8; border-radius:8px; padding:8px 10px; font-size:12.5px;"><option>すべて</option><option>男性</option><option>女性</option></select></div>
+              <div style="margin-bottom:16px;"><label style="display:block; font-size:12px; color:#8b94a3; margin-bottom:6px;">入社時期</label><div style="display:flex; gap:6px; align-items:center;"><input type="date" style="width:100%; border:1px solid #e0e3e8; border-radius:8px; padding:7px 8px; font-size:11.5px;" /></div><div style="text-align:center; color:#c0c5cd; font-size:11px; margin:3px 0;">〜</div><input type="date" style="width:100%; border:1px solid #e0e3e8; border-radius:8px; padding:7px 8px; font-size:11.5px;" /></div>
+              <button style="width:100%; background:var(--ac); color:#fff; border:0; border-radius:8px; padding:9px; font-size:12.5px; font-weight:500; cursor:pointer; margin-top:6px;">適用する</button>
+            </div>
+            <div style="flex:1; min-width:0; padding:24px 28px; overflow:auto;">
+              <div style="background:linear-gradient(135deg,var(--ac),var(--ac-l)); border-radius:14px; padding:22px 26px; color:#fff; margin-bottom:20px; display:flex; align-items:center; gap:36px;">
+                <div><div style="font-size:12.5px; opacity:.85;">回答率</div><div style="font-size:34px; font-weight:700; line-height:1.1;">{{ rate }}%</div></div>
+                <div style="flex:1;"><div style="height:9px; background:rgba(255,255,255,.25); border-radius:6px; overflow:hidden;"><div style="height:100%; width:{{ rate }}%; background:#fff; border-radius:6px;"></div></div><div style="font-size:12px; opacity:.85; margin-top:8px;">{{ responded }} / {{ target }} 名が回答済み</div></div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <sc-for list="{{ results }}" as="r" hint-placeholder-count="4">
+                  <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:22px 26px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+                      <span style="width:26px; height:26px; border-radius:7px; background:var(--ac-soft); color:var(--ac); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;">{{ r.glyph }}</span>
+                      <span style="font-size:15px; font-weight:700;">{{ r.title }}</span>
+                      <span style="margin-left:auto; font-size:11.5px; color:#8b94a3;">{{ r.typeLabel }}</span>
+                    </div>
+                    <sc-if value="{{ r.isText }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <sc-for list="{{ r.samples }}" as="t" hint-placeholder-count="4"><div style="background:#fafbfc; border:1px solid #eef0f3; border-radius:8px; padding:11px 13px; font-size:12.5px; color:#374151;">{{ t }}</div></sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ r.showBar }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex; align-items:flex-end; gap:16px; height:180px; padding:0 10px;">
+                        <sc-for list="{{ r.bars }}" as="b" hint-placeholder-count="5">
+                          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:8px;">
+                            <span style="font-size:12px; color:#5b6472; font-family:'IBM Plex Mono',monospace;">{{ b.count }}</span>
+                            <div style="width:100%; max-width:64px; height:{{ b.h }}%; background:{{ b.color }}; border-radius:7px 7px 0 0; min-height:4px;"></div>
+                            <span style="font-size:11.5px; color:#374151; text-align:center;">{{ b.label }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ r.showPie }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; align-items:center; gap:30px;">
+                        <div style="width:150px; height:150px; border-radius:50%; flex-shrink:0; background:{{ r.pieGradient }};"></div>
+                        <div style="display:flex; flex-direction:column; gap:9px; flex:1;">
+                          <sc-for list="{{ r.pie }}" as="p" hint-placeholder-count="4"><div style="display:flex; align-items:center; gap:10px; font-size:13px;"><span style="width:12px; height:12px; border-radius:3px; background:{{ p.color }};"></span><span style="flex:1; color:#374151;">{{ p.label }}</span><span style="color:#5b6472; font-family:'IBM Plex Mono',monospace;">{{ p.count }}名・{{ p.pct }}%</span></div></sc-for>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- ============ ADMIN: users ============ -->
+      <sc-if value="{{ showUsers }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:26px 32px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+            <div><h1 style="margin:0; font-size:22px; font-weight:700;">ユーザー</h1><p style="margin:6px 0 0; color:#5b6472; font-size:13.5px;">アンケート回答対象となる社員アカウント</p></div>
+            <div style="display:flex; gap:8px;"><button style="background:#fff; color:#5b6472; border:1px solid #e0e3e8; padding:10px 15px; border-radius:9px; font-size:13.5px; cursor:pointer;">CSV一括登録</button><button style="background:var(--ac); color:#fff; border:0; padding:10px 16px; border-radius:9px; font-size:13.5px; font-weight:500; cursor:pointer;">＋ ユーザー登録</button></div>
+          </div>
+          <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; overflow:hidden;">
+            <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+              <thead><tr style="background:#fafbfc; color:#6b7280; text-align:left;"><th style="padding:13px 18px; font-weight:500;">氏名</th><th style="padding:13px 18px; font-weight:500;">メールアドレス</th><th style="padding:13px 18px; font-weight:500;">部署</th><th style="padding:13px 18px; font-weight:500;">状態</th></tr></thead>
+              <tbody>
+                <sc-for list="{{ demoUsers }}" as="u" hint-placeholder-count="5">
+                  <tr style="border-top:1px solid #eef0f3;"><td style="padding:13px 18px; font-weight:500;">{{ u.name }}</td><td style="padding:13px 18px; color:#5b6472; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">{{ u.email }}</td><td style="padding:13px 18px; color:#5b6472;">{{ u.dept }}</td><td style="padding:13px 18px;"><span style="background:#e6f6ef; color:#0f7a52; padding:4px 10px; border-radius:20px; font-size:12px;">有効</span></td></tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ ADMIN: departments ============ -->
+      <sc-if value="{{ showDepts }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:26px 32px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+            <div><h1 style="margin:0; font-size:22px; font-weight:700;">部署マスタ</h1><p style="margin:6px 0 0; color:#5b6472; font-size:13.5px;">ユーザー登録・属性絞り込みに使う部署の一覧</p></div>
+            <button style="background:var(--ac); color:#fff; border:0; padding:10px 16px; border-radius:9px; font-size:13.5px; font-weight:500; cursor:pointer;">＋ 部署登録</button>
+          </div>
+          <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; overflow:hidden; max-width:560px;">
+            <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+              <thead><tr style="background:#fafbfc; color:#6b7280; text-align:left;"><th style="padding:13px 18px; font-weight:500;">部署名</th><th style="padding:13px 18px; font-weight:500;">状態</th></tr></thead>
+              <tbody>
+                <sc-for list="{{ demoDepts }}" as="d" hint-placeholder-count="4">
+                  <tr style="border-top:1px solid #eef0f3;"><td style="padding:13px 18px; font-weight:500;">{{ d }}</td><td style="padding:13px 18px;"><span style="background:#e6f6ef; color:#0f7a52; padding:4px 10px; border-radius:20px; font-size:12px;">有効</span></td></tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ SUPER: admins (in-company) ============ -->
+      <sc-if value="{{ showAdmins }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:26px 32px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+            <div><h1 style="margin:0; font-size:22px; font-weight:700;">管理者</h1><p style="margin:6px 0 0; color:#5b6472; font-size:13.5px;">この企業でアンケートを運用する管理者アカウント（スーパーユーザーのみ管理）</p></div>
+            <button style="background:var(--ac); color:#fff; border:0; padding:10px 16px; border-radius:9px; font-size:13.5px; font-weight:500; cursor:pointer;">＋ 管理者登録</button>
+          </div>
+          <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; overflow:hidden; max-width:700px;">
+            <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+              <thead><tr style="background:#fafbfc; color:#6b7280; text-align:left;"><th style="padding:13px 18px; font-weight:500;">氏名</th><th style="padding:13px 18px; font-weight:500;">メールアドレス</th><th style="padding:13px 18px; font-weight:500;">状態</th></tr></thead>
+              <tbody>
+                <sc-for list="{{ demoAdmins }}" as="a" hint-placeholder-count="2">
+                  <tr style="border-top:1px solid #eef0f3;"><td style="padding:13px 18px; font-weight:500;">{{ a.name }}</td><td style="padding:13px 18px; color:#5b6472; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">{{ a.email }}</td><td style="padding:13px 18px;"><span style="background:#e6f6ef; color:#0f7a52; padding:4px 10px; border-radius:20px; font-size:12px; white-space:nowrap;">有効</span></td></tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ USER: distributed surveys ============ -->
+      <sc-if value="{{ showUserSurveys }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:820px; margin:0 auto; padding:28px 24px; width:100%;">
+          <h1 style="margin:0 0 4px; font-size:22px; font-weight:700;">アンケート</h1>
+          <p style="margin:0 0 24px; color:#5b6472; font-size:13.5px;">あなたに配布されたアンケートです。回答期間内は提出後も修正できます。</p>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <sc-for list="{{ userSurveys }}" as="u" hint-placeholder-count="4">
+              <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:20px 24px; display:flex; align-items:center; gap:20px;">
+                <div style="flex:1; min-width:0;">
+                  <div style="display:flex; align-items:center; gap:9px; margin-bottom:9px;">
+                    <sc-if value="{{ u.isTodo }}" hint-placeholder-val="{{ true }}"><span style="background:var(--ac-soft); color:var(--ac); padding:3px 11px; border-radius:20px; font-size:11.5px; font-weight:500;">未回答</span></sc-if>
+                    <sc-if value="{{ u.isDraft }}" hint-placeholder-val="{{ false }}"><span style="background:#fef3e2; color:#b45309; padding:3px 11px; border-radius:20px; font-size:11.5px; font-weight:500;">下書き保存済み</span></sc-if>
+                    <sc-if value="{{ u.isDone }}" hint-placeholder-val="{{ false }}"><span style="background:#e6f6ef; color:#0f7a52; padding:3px 11px; border-radius:20px; font-size:11.5px; font-weight:500;">✓ 回答済み</span></sc-if>
+                    <sc-if value="{{ u.isExpired }}" hint-placeholder-val="{{ false }}"><span style="background:#f1f2f4; color:#8b94a3; padding:3px 11px; border-radius:20px; font-size:11.5px; font-weight:500;">期限切れ</span></sc-if>
+                    <sc-if value="{{ u.anonymous }}" hint-placeholder-val="{{ false }}"><span style="border:1px solid #e0e3e8; color:#6b7280; padding:3px 9px; border-radius:20px; font-size:11.5px;">匿名</span></sc-if>
+                  </div>
+                  <div style="font-size:16px; font-weight:700;">{{ u.title }}</div>
+                  <div style="font-size:12.5px; color:#8b94a3; margin-top:6px;">回答期間: {{ u.period }} ・ 設問 {{ u.questions }} 問<sc-if value="{{ u.showRemain }}" hint-placeholder-val="{{ false }}"><span style="color:#d0803a;"> ・ 残り {{ u.remain }} 日</span></sc-if></div>
+                </div>
+                <sc-if value="{{ u.canAnswer }}" hint-placeholder-val="{{ true }}"><button onClick="{{ openAnswer }}" style="background:var(--ac); color:#fff; border:0; padding:11px 22px; border-radius:9px; font-size:13.5px; font-weight:500; cursor:pointer; flex-shrink:0;">{{ u.actionLabel }}</button></sc-if>
+                <sc-if value="{{ u.isDone }}" hint-placeholder-val="{{ false }}"><button onClick="{{ openAnswer }}" style="background:#fff; color:var(--ac); border:1px solid var(--ac-border); padding:11px 20px; border-radius:9px; font-size:13.5px; font-weight:500; cursor:pointer; flex-shrink:0;">回答を確認・修正</button></sc-if>
+                <sc-if value="{{ u.isExpired }}" hint-placeholder-val="{{ false }}"><button disabled="true" style="background:#f5f6f8; color:#b0b6bf; border:1px solid #eef0f3; padding:11px 20px; border-radius:9px; font-size:13.5px; flex-shrink:0; cursor:not-allowed;">受付終了</button></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ USER: answer (A/B) ============ -->
+      <sc-if value="{{ showAnswer }}" hint-placeholder-val="{{ false }}">
+        <div style="border-bottom:1px solid #e6e8ec; background:#fff; padding:13px 24px; display:flex; align-items:center; gap:14px;">
+          <button data-screen="usurveys" onClick="{{ go }}" style="background:none; border:0; color:#5b6472; font-size:13px; cursor:pointer;">← 一覧へ</button>
+          <div style="font-weight:700; font-size:14.5px;">2026年 従業員エンゲージメント調査</div>
+          <sc-if value="{{ ansDone }}" hint-placeholder-val="{{ false }}"><span style="background:#e6f6ef; color:#0f7a52; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:500;">✓ 回答済み</span></sc-if>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+            <span style="font-size:12px; color:#9aa2b1;">回答UI</span>
+            <div style="display:flex; background:#f1f2f4; border-radius:8px; padding:3px;">
+              <button data-kind="varAns" data-val="A" onClick="{{ setVar }}" style="{{ vaABtn }}">A: 1問ずつ</button>
+              <button data-kind="varAns" data-val="B" onClick="{{ setVar }}" style="{{ vaBBtn }}">B: 一覧回答</button>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{ showAnonNote }}" hint-placeholder-val="{{ true }}">
+          <div style="background:var(--ac-soft); color:var(--ac-d); padding:9px 24px; font-size:12.5px; text-align:center;">このアンケートは匿名です。回答内容から個人が特定されることはありません。</div>
+        </sc-if>
+
+        <!-- Answer A: wizard -->
+        <sc-if value="{{ ansA }}" hint-placeholder-val="{{ true }}">
+          <div style="max-width:640px; margin:0 auto; padding:26px 20px 60px; width:100%;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
+              <div style="flex:1; height:7px; background:#eef0f3; border-radius:5px; overflow:hidden;"><div style="height:100%; width:{{ progressPct }}%; background:var(--ac); border-radius:5px; transition:width .2s;"></div></div>
+              <span style="font-size:12.5px; color:#8b94a3; font-family:'IBM Plex Mono',monospace;">{{ stepLabel }}</span>
+            </div>
+
+            <sc-if value="{{ notConfirm }}" hint-placeholder-val="{{ true }}">
+              <div style="background:#fff; border:1px solid #e6e8ec; border-radius:15px; padding:32px 34px; animation:fadeUp .2s ease;">
+                <div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;">
+                  <span style="background:var(--ac-soft); color:var(--ac); font-size:11.5px; font-weight:500; padding:4px 11px; border-radius:7px;">{{ current.typeLabel }}</span>
+                  <sc-if value="{{ current.required }}" hint-placeholder-val="{{ false }}"><span style="color:#d05f5f; font-size:12px; font-weight:500;">必須</span></sc-if>
+                </div>
+                <div style="font-size:19px; font-weight:700; line-height:1.5; margin-bottom:24px;">{{ current.title }}</div>
+
+                <sc-if value="{{ current.isSingle }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <sc-for list="{{ current.options }}" as="o" hint-placeholder-count="4">
+                      <button data-qid="{{ current.id }}" data-oid="{{ o.id }}" onClick="{{ setSingle }}" style="display:flex; align-items:center; gap:13px; text-align:left; border:1.5px solid {{ o.optBorder }}; background:{{ o.optBg }}; border-radius:11px; padding:15px 18px; cursor:pointer; font-size:14.5px;"><span style="width:19px; height:19px; border-radius:50%; border:2px solid {{ o.dotBorder }}; display:flex; align-items:center; justify-content:center;"><span style="width:9px; height:9px; border-radius:50%; background:{{ o.dotFill }};"></span></span>{{ o.text }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ current.isMulti }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <sc-for list="{{ current.options }}" as="o" hint-placeholder-count="4">
+                      <button data-qid="{{ current.id }}" data-oid="{{ o.id }}" onClick="{{ toggleMulti }}" style="display:flex; align-items:center; gap:13px; text-align:left; border:1.5px solid {{ o.optBorder }}; background:{{ o.optBg }}; border-radius:11px; padding:15px 18px; cursor:pointer; font-size:14.5px;"><span style="width:19px; height:19px; border-radius:6px; border:2px solid {{ o.dotBorder }}; background:{{ o.boxFill }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px;">{{ o.check }}</span>{{ o.text }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ current.isRating }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; gap:12px; justify-content:center; padding:10px 0;">
+                    <sc-for list="{{ current.ratingVals }}" as="rv" hint-placeholder-count="5">
+                      <button data-qid="{{ current.id }}" data-val="{{ rv.v }}" onClick="{{ setRating }}" style="width:64px; height:64px; border-radius:13px; border:1.5px solid {{ rv.border }}; background:{{ rv.bg }}; color:{{ rv.color }}; font-size:22px; font-weight:700; cursor:pointer;">{{ rv.v }}</button>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:12px; color:#9aa2b1;"><span>1 = 満足していない</span><span>5 = 非常に満足</span></div>
+                </sc-if>
+                <sc-if value="{{ current.isText }}" hint-placeholder-val="{{ false }}">
+                  <textarea value="{{ current.textVal }}" data-qid="{{ current.id }}" onInput="{{ setTextAns }}" placeholder="自由にご記入ください（最大 500 文字）" style="width:100%; min-height:130px; border:1.5px solid #e6e8ec; border-radius:11px; padding:14px; font-size:14px; outline:none; resize:vertical;"></textarea>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <!-- confirm -->
+            <sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff; border:1px solid #e6e8ec; border-radius:15px; padding:30px 34px; animation:fadeUp .2s ease;">
+                <div style="font-size:19px; font-weight:700; margin-bottom:6px;">回答内容の確認</div>
+                <div style="font-size:13px; color:#8b94a3; margin-bottom:22px;">内容をご確認のうえ、送信してください。回答期間内は再度修正できます。</div>
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <sc-for list="{{ ansQuestions }}" as="q" hint-placeholder-count="4">
+                    <div style="border-bottom:1px solid #f1f2f4; padding-bottom:14px;">
+                      <div style="font-size:12.5px; color:#8b94a3; margin-bottom:6px;">{{ q.idx }}. {{ q.title }}</div>
+                      <div style="font-size:14px; font-weight:500; color:{{ q.answerColor }};">{{ q.answerText }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="display:flex; align-items:center; gap:10px; margin-top:22px;">
+              <sc-if value="{{ canPrev }}" hint-placeholder-val="{{ false }}"><button onClick="{{ ansPrev }}" style="background:#fff; color:#5b6472; border:1px solid #e0e3e8; padding:12px 22px; border-radius:10px; font-size:14px; cursor:pointer;">← 戻る</button></sc-if>
+              <button onClick="{{ saveAnswerDraft }}" style="background:none; color:#8b94a3; border:0; padding:12px 8px; font-size:13px; cursor:pointer; margin-left:auto;">下書き保存</button>
+              <sc-if value="{{ notConfirm }}" hint-placeholder-val="{{ true }}"><button onClick="{{ ansNext }}" style="background:var(--ac); color:#fff; border:0; padding:12px 30px; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer;">次へ →</button></sc-if>
+              <sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}"><button onClick="{{ submitAnswer }}" style="background:#0f9d6b; color:#fff; border:0; padding:12px 30px; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer;">回答を送信</button></sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Answer B: single-page -->
+        <sc-if value="{{ ansB }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; max-width:960px; margin:0 auto; width:100%; gap:24px; padding:26px 24px 60px;">
+            <div style="width:210px; flex-shrink:0;">
+              <div style="position:sticky; top:20px; background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:18px;">
+                <div style="font-size:12px; color:#8b94a3; margin-bottom:6px;">回答状況</div>
+                <div style="font-size:24px; font-weight:700; margin-bottom:12px;">{{ answeredCount }}<span style="font-size:14px; color:#8b94a3;"> / {{ totalQ }} 問</span></div>
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                  <sc-for list="{{ ansQuestions }}" as="q" hint-placeholder-count="4">
+                    <div style="display:flex; align-items:center; gap:9px; font-size:12.5px; color:#5b6472;"><span style="width:18px; height:18px; border-radius:50%; background:{{ q.dotBg }}; color:{{ q.dotColor }}; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;">{{ q.dotMark }}</span>設問 {{ q.idx }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <sc-for list="{{ ansQuestions }}" as="q" hint-placeholder-count="4">
+                  <div style="background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:22px 26px;">
+                    <div style="display:flex; align-items:center; gap:9px; margin-bottom:12px;"><span style="font-size:13px; font-weight:700; color:var(--ac);">Q{{ q.idx }}</span><span style="background:#f1f2f4; color:#6b7280; font-size:11px; padding:3px 9px; border-radius:6px;">{{ q.typeLabel }}</span><sc-if value="{{ q.required }}" hint-placeholder-val="{{ false }}"><span style="color:#d05f5f; font-size:11.5px;">必須</span></sc-if></div>
+                    <div style="font-size:15px; font-weight:700; margin-bottom:16px; line-height:1.5;">{{ q.title }}</div>
+                    <sc-if value="{{ q.isSingle }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex; flex-wrap:wrap; gap:9px;">
+                        <sc-for list="{{ q.options }}" as="o" hint-placeholder-count="4"><button data-qid="{{ q.id }}" data-oid="{{ o.id }}" onClick="{{ setSingle }}" style="display:flex; align-items:center; gap:9px; border:1.5px solid {{ o.optBorder }}; background:{{ o.optBg }}; border-radius:9px; padding:10px 15px; cursor:pointer; font-size:13.5px;"><span style="width:16px; height:16px; border-radius:50%; border:2px solid {{ o.dotBorder }}; display:flex; align-items:center; justify-content:center;"><span style="width:8px; height:8px; border-radius:50%; background:{{ o.dotFill }};"></span></span>{{ o.text }}</button></sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ q.isMulti }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; flex-wrap:wrap; gap:9px;">
+                        <sc-for list="{{ q.options }}" as="o" hint-placeholder-count="4"><button data-qid="{{ q.id }}" data-oid="{{ o.id }}" onClick="{{ toggleMulti }}" style="display:flex; align-items:center; gap:9px; border:1.5px solid {{ o.optBorder }}; background:{{ o.optBg }}; border-radius:9px; padding:10px 15px; cursor:pointer; font-size:13.5px;"><span style="width:16px; height:16px; border-radius:5px; border:2px solid {{ o.dotBorder }}; background:{{ o.boxFill }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px;">{{ o.check }}</span>{{ o.text }}</button></sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ q.isRating }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; gap:10px;">
+                        <sc-for list="{{ q.ratingVals }}" as="rv" hint-placeholder-count="5"><button data-qid="{{ q.id }}" data-val="{{ rv.v }}" onClick="{{ setRating }}" style="width:52px; height:52px; border-radius:11px; border:1.5px solid {{ rv.border }}; background:{{ rv.bg }}; color:{{ rv.color }}; font-size:18px; font-weight:700; cursor:pointer;">{{ rv.v }}</button></sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ q.isText }}" hint-placeholder-val="{{ false }}">
+                      <textarea value="{{ q.textVal }}" data-qid="{{ q.id }}" onInput="{{ setTextAns }}" placeholder="自由にご記入ください（最大 500 文字）" style="width:100%; min-height:100px; border:1.5px solid #e6e8ec; border-radius:10px; padding:13px; font-size:13.5px; outline:none; resize:vertical;"></textarea>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; margin-top:20px; background:#fff; border:1px solid #e6e8ec; border-radius:13px; padding:16px 22px;">
+                <span style="font-size:13px; color:#5b6472;">回答期間内は、送信後も内容を修正できます。</span>
+                <button onClick="{{ saveAnswerDraft }}" style="margin-left:auto; background:#fff; color:#5b6472; border:1px solid #e0e3e8; padding:11px 20px; border-radius:9px; font-size:13.5px; cursor:pointer;">下書き保存</button>
+                <button onClick="{{ submitAnswer }}" style="background:#0f9d6b; color:#fff; border:0; padding:11px 26px; border-radius:9px; font-size:13.5px; font-weight:500; cursor:pointer;">回答を送信</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+    </main>
+  </div>
+
+  <!-- toast -->
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#14161c; color:#fff; padding:13px 24px; border-radius:11px; font-size:13.5px; font-weight:500; box-shadow:0 8px 26px rgba(0,0,0,.25); animation:toastIn .2s ease; z-index:50;">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;accentColor&quot;: {
+    &quot;editor&quot;: &quot;color&quot;,
+    &quot;default&quot;: &quot;#4b53e0&quot;,
+    &quot;tsType&quot;: &quot;string&quot;,
+    &quot;section&quot;: &quot;外観&quot;,
+    &quot;options&quot;: [&quot;#4b53e0&quot;, &quot;#0f9d6b&quot;, &quot;#c2410c&quot;, &quot;#0e7490&quot;, &quot;#9333ea&quot;]
+  },
+  &quot;density&quot;: {
+    &quot;editor&quot;: &quot;enum&quot;,
+    &quot;options&quot;: [&quot;compact&quot;, &quot;standard&quot;, &quot;spacious&quot;],
+    &quot;default&quot;: &quot;standard&quot;,
+    &quot;tsType&quot;: &quot;string&quot;,
+    &quot;section&quot;: &quot;外観&quot;
+  },
+  &quot;typeface&quot;: {
+    &quot;editor&quot;: &quot;enum&quot;,
+    &quot;options&quot;: [&quot;モダン&quot;, &quot;まる&quot;, &quot;明朝&quot;],
+    &quot;default&quot;: &quot;モダン&quot;,
+    &quot;tsType&quot;: &quot;string&quot;,
+    &quot;section&quot;: &quot;外観&quot;
+  }
+}">
+const PALETTE = ['var(--ac)','#2aa7a0','#e8934a','#d05fb0','#6d9e3f','#5b7cc9'];
+const RATING_SHADES = ['#cdd1f6','#a7adef','#7e86e9','#5860e2','#3a41c4'];
+
+class Component extends DCLogic {
+  state = {
+    role: 'admin',
+    acting: null,
+    screen: 'surveys',
+    chartType: 'bar',
+    dashSurveyId: 101,
+    varCreate: 'A',
+    varDash: 'A',
+    varAns: 'A',
+    focusedQid: 1,
+    addMenu: false,
+    answerStep: 0,
+    ansStatus: '未回答',
+    ans: { 2: null, 3: [], 1: null, 4: '' },
+    toast: null,
+    companies: [
+      { code: 'C0001', name: '株式会社サンプル物流', status: 'active', users: 128, surveys: 6 },
+      { code: 'C0002', name: 'みらいテック株式会社', status: 'active', users: 64, surveys: 3 },
+      { code: 'C0003', name: 'グリーンフーズ株式会社', status: 'inactive', users: 42, surveys: 1 },
+      { code: 'C0004', name: '城南メディカル株式会社', status: 'active', users: 210, surveys: 9 },
+    ],
+    surveys: [
+      { id: 101, title: '2026年 従業員エンゲージメント調査', status: '公開', start: '2026-07-01', end: '2026-07-31', target: 128, responded: 86, questions: 4, anonymous: true },
+      { id: 102, title: '新オフィス移転に関する意向アンケート', status: '下書き', start: '', end: '', target: 128, responded: 0, questions: 6, anonymous: false },
+      { id: 103, title: '夏季研修 満足度調査', status: '終了', start: '2026-06-15', end: '2026-06-30', target: 96, responded: 91, questions: 5, anonymous: true },
+      { id: 104, title: '健康経営セルフチェック 2026', status: '公開', start: '2026-07-05', end: '2026-08-05', target: 128, responded: 41, questions: 8, anonymous: false },
+    ],
+    survey: {
+      title: '2026年 従業員エンゲージメント調査',
+      anonymous: true,
+      status: '下書き',
+      start: '2026-07-01',
+      end: '2026-07-31',
+      questions: [
+        { id: 1, type: 'rating', title: '総合的に、現在の職場にどの程度満足していますか？', required: true, options: [] },
+        { id: 2, type: 'single', title: '最も改善してほしい項目を1つ選んでください', required: true, options: [
+          { id: 21, text: '給与・報酬' }, { id: 22, text: '人事評価制度' }, { id: 23, text: '労働時間・休暇' }, { id: 24, text: '福利厚生' }, { id: 25, text: '職場の人間関係' } ] },
+        { id: 3, type: 'multi', title: '現在活用している福利厚生を教えてください（複数選択可）', required: false, options: [
+          { id: 31, text: '住宅手当' }, { id: 32, text: '健康診断補助' }, { id: 33, text: '自己啓発・研修支援' }, { id: 34, text: 'リモート勤務制度' }, { id: 35, text: '社員食堂' } ] },
+        { id: 4, type: 'text', title: '職場環境について、ご意見・ご要望を自由にご記入ください', required: false, options: [] },
+      ],
+    },
+    dashResults: {
+      1: [4, 9, 22, 38, 13],
+      2: { '給与・報酬': 26, '人事評価制度': 18, '労働時間・休暇': 14, '福利厚生': 17, '職場の人間関係': 11 },
+      3: { '住宅手当': 34, '健康診断補助': 72, '自己啓発・研修支援': 40, 'リモート勤務制度': 58, '社員食堂': 29 },
+      4: ['マネージャーとの1on1をもっと増やしてほしい。', 'リモート勤務の対象範囲を広げてほしいです。', '休憩スペースが手狭に感じます。', '評価のフィードバックが分かりにくい。'],
+    },
+    userSurveys: [
+      { id: 101, title: '2026年 従業員エンゲージメント調査', period: '2026-07-01 〜 2026-07-31', status: '未回答', anonymous: true, questions: 4, remain: 17 },
+      { id: 102, title: '新オフィス移転に関する意向アンケート', period: '2026-07-10 〜 2026-07-24', status: '下書き', anonymous: false, questions: 6, remain: 10 },
+      { id: 103, title: '夏季研修 満足度調査', period: '2026-06-15 〜 2026-06-30', status: '回答済', anonymous: true, questions: 5, remain: 0 },
+      { id: 104, title: '健康経営セルフチェック 2026', period: '2026-06-01 〜 2026-06-20', status: '期限切れ', anonymous: false, questions: 8, remain: 0 },
+    ],
+  };
+
+  toast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 2200);
+  }
+
+  setRole = (e) => {
+    const role = e.currentTarget.dataset.role;
+    const screen = role === 'super' ? 'companies' : role === 'user' ? 'usurveys' : 'surveys';
+    this.setState({ role, acting: role === 'super' ? null : this.state.acting, screen, answerStep: 0 });
+  };
+  go = (e) => { this.setState({ screen: e.currentTarget.dataset.screen, addMenu: false }); };
+  enterCompany = (e) => {
+    const code = e.currentTarget.dataset.code;
+    const c = this.state.companies.find(x => x.code === code);
+    this.setState({ acting: c, screen: 'home' });
+  };
+  exitCompany = () => this.setState({ acting: null, screen: 'companies' });
+  setVar = (e) => { const { kind, val } = e.currentTarget.dataset; this.setState({ [kind]: val }); };
+  setChart = (e) => this.setState({ chartType: e.currentTarget.dataset.ct });
+  openDash = (e) => this.setState({ dashSurveyId: +e.currentTarget.dataset.sid, screen: 'dashboard' });
+  pickDashSurvey = (e) => this.setState({ dashSurveyId: +e.target.value });
+
+  // ---- builder ----
+  nextId() { return Math.max(0, ...this.state.survey.questions.map(q => q.id)) + 1; }
+  toggleAddMenu = () => this.setState({ addMenu: !this.state.addMenu });
+  addQuestion = (e) => {
+    const type = e.currentTarget.dataset.qtype;
+    const id = this.nextId();
+    const base = { id, type, title: '', required: false, options: [] };
+    if (type === 'single' || type === 'multi') base.options = [ { id: id*10+1, text: '選択肢 1' }, { id: id*10+2, text: '選択肢 2' } ];
+    const questions = [...this.state.survey.questions, base];
+    this.setState({ survey: { ...this.state.survey, questions }, focusedQid: id, addMenu: false });
+  };
+  removeQuestion = (e) => {
+    const qid = +e.currentTarget.dataset.qid;
+    const questions = this.state.survey.questions.filter(q => q.id !== qid);
+    this.setState({ survey: { ...this.state.survey, questions } });
+  };
+  moveQuestion = (e) => {
+    const { qid, dir } = e.currentTarget.dataset;
+    const qs = [...this.state.survey.questions];
+    const i = qs.findIndex(q => q.id === +qid);
+    const j = dir === 'up' ? i - 1 : i + 1;
+    if (j < 0 || j >= qs.length) return;
+    [qs[i], qs[j]] = [qs[j], qs[i]];
+    this.setState({ survey: { ...this.state.survey, questions: qs } });
+  };
+  focusQuestion = (e) => this.setState({ focusedQid: +e.currentTarget.dataset.qid });
+  editTitle = (e) => {
+    const qid = +e.currentTarget.dataset.qid; const v = e.target.value;
+    const questions = this.state.survey.questions.map(q => q.id === qid ? { ...q, title: v } : q);
+    this.setState({ survey: { ...this.state.survey, questions } });
+  };
+  toggleRequired = (e) => {
+    const qid = +e.currentTarget.dataset.qid;
+    const questions = this.state.survey.questions.map(q => q.id === qid ? { ...q, required: !q.required } : q);
+    this.setState({ survey: { ...this.state.survey, questions } });
+  };
+  addOption = (e) => {
+    const qid = +e.currentTarget.dataset.qid;
+    const questions = this.state.survey.questions.map(q => {
+      if (q.id !== qid) return q;
+      const oid = Math.max(qid*10, ...q.options.map(o => o.id)) + 1;
+      return { ...q, options: [...q.options, { id: oid, text: '選択肢 ' + (q.options.length + 1) }] };
+    });
+    this.setState({ survey: { ...this.state.survey, questions } });
+  };
+  removeOption = (e) => {
+    const { qid, oid } = e.currentTarget.dataset;
+    const questions = this.state.survey.questions.map(q => q.id === +qid ? { ...q, options: q.options.filter(o => o.id !== +oid) } : q);
+    this.setState({ survey: { ...this.state.survey, questions } });
+  };
+  editOption = (e) => {
+    const { qid, oid } = e.currentTarget.dataset; const v = e.target.value;
+    const questions = this.state.survey.questions.map(q => q.id === +qid ? { ...q, options: q.options.map(o => o.id === +oid ? { ...o, text: v } : o) } : q);
+    this.setState({ survey: { ...this.state.survey, questions } });
+  };
+  editMeta = (e) => { const k = e.currentTarget.dataset.k; this.setState({ survey: { ...this.state.survey, [k]: e.target.value } }); };
+  toggleAnon = () => this.setState({ survey: { ...this.state.survey, anonymous: !this.state.survey.anonymous } });
+  publishSurvey = () => { this.setState({ survey: { ...this.state.survey, status: '公開' } }); this.toast('アンケートを公開しました'); };
+  draftSurvey = () => { this.setState({ survey: { ...this.state.survey, status: '下書き' } }); this.toast('下書きを保存しました'); };
+
+  // ---- answering ----
+  setSingle = (e) => { const { qid, oid } = e.currentTarget.dataset; this.setState({ ans: { ...this.state.ans, [qid]: +oid } }); };
+  toggleMulti = (e) => {
+    const { qid, oid } = e.currentTarget.dataset; const cur = this.state.ans[qid] || [];
+    const next = cur.includes(+oid) ? cur.filter(x => x !== +oid) : [...cur, +oid];
+    this.setState({ ans: { ...this.state.ans, [qid]: next } });
+  };
+  setRating = (e) => { const { qid, val } = e.currentTarget.dataset; this.setState({ ans: { ...this.state.ans, [qid]: +val } }); };
+  setTextAns = (e) => { const qid = e.currentTarget.dataset.qid; this.setState({ ans: { ...this.state.ans, [qid]: e.target.value } }); };
+  ansNext = () => this.setState({ answerStep: Math.min(this.state.survey.questions.length, this.state.answerStep + 1) });
+  ansPrev = () => this.setState({ answerStep: Math.max(0, this.state.answerStep - 1) });
+  gotoStep = (e) => this.setState({ answerStep: +e.currentTarget.dataset.step });
+  submitAnswer = () => { this.setState({ ansStatus: '回答済' }); this.toast('回答を送信しました'); };
+  saveAnswerDraft = () => { this.setState({ ansStatus: '下書き' }); this.toast('下書きを保存しました'); };
+  reopenAnswer = () => { this.setState({ ansStatus: '未回答', answerStep: 0, screen: 'answer' }); };
+  openAnswer = () => this.setState({ screen: 'answer', answerStep: 0 });
+
+  typeLabel(t) { return { rating: '段階評価', single: '単一選択', multi: '複数選択', text: '自由記述' }[t]; }
+  typeGlyph(t) { return { rating: '★', single: '◉', multi: '☑', text: '¶' }[t]; }
+
+  renderVals() {
+    const s = this.state;
+    const seg = (on) => `border:0; cursor:pointer; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:500; background:${on?'#fff':'transparent'}; color:${on?'#171a1f':'#8b94a3'}; box-shadow:${on?'0 1px 2px rgba(0,0,0,.08)':'none'};`;
+    const navS = (on) => `display:block; width:100%; text-align:left; border:0; cursor:pointer; padding:9px 12px; border-radius:9px; font-size:13.5px; font-weight:500; background:${on?'var(--ac-soft)':'transparent'}; color:${on?'var(--ac)':'#4b5563'}; margin-bottom:2px;`;
+    const isSuper = s.role === 'super', isAdmin = s.role === 'admin', isUser = s.role === 'user';
+    const inCompany = isAdmin || (isSuper && s.acting);
+    const orgName = isSuper ? (s.acting ? s.acting.name : '全社管理（スーパーユーザー）') : '株式会社サンプル物流';
+    const orgCode = isSuper ? (s.acting ? s.acting.code : '—') : 'C0001';
+
+    const questions = s.survey.questions.map((q, i) => ({
+      ...q,
+      idx: i + 1,
+      typeLabel: this.typeLabel(q.type),
+      glyph: this.typeGlyph(q.type),
+      isFirst: i === 0, isLast: i === s.survey.questions.length - 1,
+      isRating: q.type === 'rating', isSingle: q.type === 'single', isMulti: q.type === 'multi', isText: q.type === 'text',
+      hasOptions: q.type === 'single' || q.type === 'multi',
+      focused: q.id === s.focusedQid,
+      reqTrack: q.required ? 'var(--ac)' : '#d5d9e0', reqKnob: q.required ? '17px' : '2px',
+      optRadius: q.type === 'multi' ? '4px' : '50%',
+      outlineBorder: q.id === s.focusedQid ? '#c9cdf5' : '#e6e8ec',
+      outlineBg: q.id === s.focusedQid ? 'var(--ac-soft)' : '#fff',
+      titleOrPlaceholder: q.title || '（無題の設問）',
+    }));
+    const focused = questions.find(q => q.id === s.focusedQid) || questions[0];
+
+    // dashboard results — scoped to the selected survey
+    const dashSurvey = s.surveys.find(v => v.id === s.dashSurveyId) || s.surveys[0];
+    const responded = dashSurvey.responded, target = dashSurvey.target;
+    const results = s.survey.questions.map(q => {
+      const r = { qid: q.id, type: q.type, title: q.title, typeLabel: this.typeLabel(q.type), isText: q.type === 'text', glyph: this.typeGlyph(q.type) };
+      if (q.type === 'rating') {
+        const counts = s.dashResults[q.id] || [0,0,0,0,0];
+        const max = Math.max(...counts);
+        const avg = (counts.reduce((a,c,i)=>a+c*(i+1),0) / counts.reduce((a,c)=>a+c,0)).toFixed(1);
+        r.avg = avg;
+        r.bars = counts.map((c, i) => ({ label: String(i+1), count: c, pct: Math.round(c/responded*100), h: Math.round(c/max*100), w: Math.round(c/max*100), color: RATING_SHADES[i] }));
+        let acc = 0; r.pie = counts.map((c,i) => { const p = c/responded*100; const seg = { color: RATING_SHADES[i], from: acc, to: acc+p, label: String(i+1), count: c, pct: Math.round(p) }; acc += p; return seg; });
+        r.pieGradient = 'conic-gradient(' + r.pie.map(seg => seg.color+' '+seg.from+'% '+seg.to+'%').join(',') + ')';
+      } else if (q.type === 'single' || q.type === 'multi') {
+        const obj = s.dashResults[q.id] || {};
+        const entries = Object.entries(obj);
+        const max = Math.max(...entries.map(e => e[1]));
+        r.bars = entries.map(([label, c], i) => ({ label, count: c, pct: Math.round(c/responded*100), h: Math.round(c/max*100), w: Math.round(c/max*100), color: PALETTE[i % PALETTE.length] }));
+        let acc = 0; const sum = entries.reduce((a,e)=>a+e[1],0);
+        r.pie = entries.map(([label,c],i) => { const p = c/sum*100; const seg = { color: PALETTE[i%PALETTE.length], from: acc, to: acc+p, label, count: c, pct: Math.round(c/responded*100) }; acc += p; return seg; });
+        r.pieGradient = 'conic-gradient(' + r.pie.map(seg => seg.color+' '+seg.from+'% '+seg.to+'%').join(',') + ')';
+        r.isMulti = q.type === 'multi';
+      } else {
+        r.samples = s.dashResults[q.id] || [];
+        r.sampleCount = r.samples.length;
+      }
+      r.showBar = s.chartType === 'bar' && !r.isText;
+      r.showPie = s.chartType === 'pie' && !r.isText;
+      return r;
+    });
+    const rate = target ? Math.round(responded/target*100) : 0;
+    const dashSurveyOptions = s.surveys.map(v => ({ id: v.id, label: v.title + (v.status==='下書き'?'（下書き）':v.status==='終了'?'（終了）':'') }));
+
+    // answer view
+    const ansQuestions = s.survey.questions.map((q, i) => {
+      const val = s.ans[q.id];
+      const isMulti = q.type==='multi';
+      const answered = isMulti ? (val||[]).length>0 : q.type==='text' ? !!(val&&val.trim()) : val!=null;
+      const options = q.options.map(o => {
+        const checked = isMulti ? (val||[]).includes(o.id) : val === o.id;
+        return { ...o, checked,
+          optBorder: checked ? 'var(--ac)' : '#e6e8ec', optBg: checked ? 'var(--ac-soft)' : '#fff',
+          dotBorder: checked ? 'var(--ac)' : '#cfd4db', dotFill: (checked && !isMulti) ? 'var(--ac)' : 'transparent',
+          boxFill: checked ? 'var(--ac)' : 'transparent', check: checked ? '✓' : '' };
+      });
+      let answerText = '（未回答）';
+      if (q.type==='single') { const o = q.options.find(o=>o.id===val); answerText = o ? o.text : '（未回答）'; }
+      else if (isMulti) { const ts = q.options.filter(o=>(val||[]).includes(o.id)).map(o=>o.text); answerText = ts.length? ts.join('、') : '（未回答）'; }
+      else if (q.type==='rating') { answerText = val ? (val + ' / 5') : '（未回答）'; }
+      else { answerText = (val && val.trim()) ? val : '（未回答）'; }
+      return { ...q, idx: i + 1, typeLabel: this.typeLabel(q.type),
+        isRating: q.type==='rating', isSingle: q.type==='single', isMulti, isText: q.type==='text',
+        options,
+        ratingVals: [1,2,3,4,5].map(v => ({ v, on: val === v,
+          border: val===v ? 'var(--ac)' : '#e6e8ec', bg: val===v ? 'var(--ac-soft)' : '#fff', color: val===v ? 'var(--ac)' : '#5b6472' })),
+        textVal: q.type==='text' ? (val||'') : '',
+        answered, answerText, answerColor: answered ? '#171a1f' : '#b0b6bf',
+        dotMark: answered ? '✓' : '', dotBg: answered ? 'var(--ac)' : '#eef0f3', dotColor: answered ? '#fff' : '#b0b6bf',
+      };
+    });
+    const totalQ = ansQuestions.length;
+    const answeredCount = ansQuestions.filter(q => q.answered).length;
+    const step = Math.min(s.answerStep, totalQ);
+    const isConfirm = step >= totalQ;
+    const current = ansQuestions[step] || null;
+    const progressPct = Math.round(step/totalQ*100);
+    const stepDots = ansQuestions.map((q,i)=>({ idx:i, num:i+1, done: q.answered, active: i===step }));
+
+    const ac = this.props.accentColor ?? '#4b53e0';
+    const density = this.props.density ?? 'standard';
+    const typeface = this.props.typeface ?? 'モダン';
+    const fontStack = typeface === 'まる' ? "'M PLUS Rounded 1c', sans-serif"
+      : typeface === '明朝' ? "'Shippori Mincho', serif"
+      : "'Noto Sans JP', system-ui, sans-serif";
+
+    return {
+      role: s.role, isSuper, isAdmin, isUser, acting: s.acting, inCompany, orgName, orgCode,
+      // theme (tweakable)
+      acVar: ac,
+      acDVar: `color-mix(in oklab, ${ac}, black 16%)`,
+      acLVar: `color-mix(in oklab, ${ac}, white 20%)`,
+      acSoftVar: `color-mix(in oklab, ${ac}, white 88%)`,
+      acBorderVar: `color-mix(in oklab, ${ac}, white 64%)`,
+      densityZoom: density === 'compact' ? 0.9 : density === 'spacious' ? 1.06 : 1,
+      fontStack,
+      // role toggle
+      superBtnBg: isSuper?'var(--ac)':'transparent', superBtnColor: isSuper?'#fff':'#8b93a6',
+      adminBtnBg: isAdmin?'var(--ac)':'transparent', adminBtnColor: isAdmin?'#fff':'#8b93a6',
+      userBtnBg: isUser?'var(--ac)':'transparent', userBtnColor: isUser?'#fff':'#8b93a6',
+      // nav styles
+      navCompaniesStyle: navS(s.screen==='companies'), navHomeStyle: navS(s.screen==='home'),
+      navSurveysStyle: navS(s.screen==='surveys'), navDashStyle: navS(s.screen==='dashboard'),
+      navUsersStyle: navS(s.screen==='users'), navDeptsStyle: navS(s.screen==='departments'),
+      navUSurveysStyle: navS(s.screen==='usurveys'),
+      // segmented toggles
+      vcABtn: seg(s.varCreate==='A'), vcBBtn: seg(s.varCreate==='B'),
+      vdABtn: seg(s.varDash==='A'), vdBBtn: seg(s.varDash==='B'),
+      vaABtn: seg(s.varAns==='A'), vaBBtn: seg(s.varAns==='B'),
+      barBtn: seg(s.chartType==='bar'), pieBtn: seg(s.chartType==='pie'),
+      // anon toggle
+      anonTrack: s.survey.anonymous?'var(--ac)':'#d5d9e0', anonKnob: s.survey.anonymous?'19px':'2px',
+      // identity
+      avatarInitial: isSuper?'S':isAdmin?'田':'山',
+      userName: isSuper?'サポート担当':isAdmin?'田中 花子':'山田 太郎',
+      roleLabel: isSuper?'スーパーユーザー':isAdmin?'管理者・人事部':'ユーザー・営業部',
+      // demo tables
+      demoUsers: [
+        { name:'山田 太郎', email:'taro.yamada@sample.co.jp', dept:'営業部' },
+        { name:'佐藤 美咲', email:'misaki.sato@sample.co.jp', dept:'人事部' },
+        { name:'鈴木 一郎', email:'ichiro.suzuki@sample.co.jp', dept:'開発部' },
+        { name:'高橋 恵', email:'megumi.takahashi@sample.co.jp', dept:'管理部' },
+        { name:'田中 大輔', email:'daisuke.tanaka@sample.co.jp', dept:'営業部' },
+      ],
+      demoDepts: ['人事部','営業部','開発部','管理部','マーケティング部'],
+      // misc flags
+      showActingBanner: isSuper && !!s.acting,
+      showAnonNote: s.survey.anonymous,
+      hasFocused: questions.length > 0,
+      notConfirm: !isConfirm, canPrev: step > 0,
+      stepLabel: isConfirm ? '確認' : ((step+1) + ' / ' + totalQ),
+      screen: s.screen, chartType: s.chartType, isBar: s.chartType==='bar', isPie: s.chartType==='pie',
+      varCreate: s.varCreate, varDash: s.varDash, varAns: s.varAns,
+      createA: s.varCreate==='A', createB: s.varCreate==='B', dashA: s.varDash==='A', dashB: s.varDash==='B', ansA: s.varAns==='A', ansB: s.varAns==='B',
+      // screen flags
+      showCompanies: isSuper && !s.acting && s.screen==='companies',
+      showHome: inCompany && s.screen==='home',
+      showSurveys: inCompany && s.screen==='surveys',
+      showCreate: inCompany && s.screen==='create',
+      showDashboard: inCompany && s.screen==='dashboard',
+      showUsers: inCompany && s.screen==='users',
+      showDepts: inCompany && s.screen==='departments',
+      showAdmins: isSuper && !!s.acting && s.screen==='admins',
+      navAdminsStyle: navS(s.screen==='admins'),
+      demoAdmins: [
+        { name:'渡辺 健一', email:'kenichi.watanabe@sample.co.jp' },
+        { name:'伊藤 由美', email:'yumi.ito@sample.co.jp' },
+      ],
+      showUserSurveys: isUser && s.screen==='usurveys',
+      showAnswer: isUser && s.screen==='answer',
+      navSuper: isSuper, navAdmin: inCompany, navUser: isUser,
+      showAdminsNav: isSuper && s.acting,
+      // data
+      companies: s.companies.map(c => ({ ...c, active: c.status==='active', statusLabel: c.status==='active'?'有効':'無効' })),
+      surveys: s.surveys.map(v => ({ ...v, rate: v.target? Math.round(v.responded/v.target*100):0,
+        isPub: v.status==='公開', isDraft: v.status==='下書き', isClosed: v.status==='終了',
+        period: v.start? (v.start+' 〜 '+v.end) : '未設定' })),
+      survey: s.survey, questions, focused,
+      surveyStatusPub: s.survey.status==='公開',
+      results, responded, target, rate,
+      dashSurveyId: s.dashSurveyId, dashSurveyOptions, dashSurveyTitle: dashSurvey.title,
+      openDash: this.openDash, pickDashSurvey: this.pickDashSurvey,
+      // nav active
+      navActive: s.screen,
+      isCompaniesActive: s.screen==='companies', isHomeActive: s.screen==='home', isSurveysActive: s.screen==='surveys',
+      isCreateActive: s.screen==='create', isDashActive: s.screen==='dashboard', isUsersActive: s.screen==='users', isDeptsActive: s.screen==='departments',
+      // user
+      userSurveys: s.userSurveys.map(u => ({ ...u,
+        isTodo: u.status==='未回答', isDraft: u.status==='下書き', isDone: u.status==='回答済', isExpired: u.status==='期限切れ',
+        canAnswer: u.status==='未回答' || u.status==='下書き',
+        showRemain: (u.status==='未回答' || u.status==='下書き') && u.remain>0,
+        actionLabel: u.status==='下書き' ? '回答を再開' : '回答する' })),
+      ansQuestions, totalQ, answeredCount, step, isConfirm, current, progressPct, stepDots,
+      ansStatus: s.ansStatus, ansDone: s.ansStatus==='回答済', ansDraft: s.ansStatus==='下書き',
+      allAnswered: answeredCount === totalQ,
+      toast: s.toast,
+      // handlers
+      setRole: this.setRole, go: this.go, enterCompany: this.enterCompany, exitCompany: this.exitCompany,
+      setVar: this.setVar, setChart: this.setChart,
+      toggleAddMenu: this.toggleAddMenu, addMenu: s.addMenu, addQuestion: this.addQuestion,
+      removeQuestion: this.removeQuestion, moveQuestion: this.moveQuestion, focusQuestion: this.focusQuestion,
+      editTitle: this.editTitle, toggleRequired: this.toggleRequired, addOption: this.addOption, removeOption: this.removeOption,
+      editOption: this.editOption, editMeta: this.editMeta, toggleAnon: this.toggleAnon,
+      publishSurvey: this.publishSurvey, draftSurvey: this.draftSurvey,
+      setSingle: this.setSingle, toggleMulti: this.toggleMulti, setRating: this.setRating, setTextAns: this.setTextAns,
+      ansNext: this.ansNext, ansPrev: this.ansPrev, gotoStep: this.gotoStep, submitAnswer: this.submitAnswer,
+      saveAnswerDraft: this.saveAnswerDraft, reopenAnswer: this.reopenAnswer, openAnswer: this.openAnswer,
+    };
+  }
+}
+</script>
+</body>
+</html>

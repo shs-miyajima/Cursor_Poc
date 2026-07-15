@@ -9,8 +9,30 @@ alwaysApply: true
 
 ## 正本
 
-- 実装・テストの判断は `docs/specs/` を正とする
-- 仕様は Markdown で管理する（`docs/specs/<slug>/`）
+- 実装・テストの判断は `docs/specs/<slug>/` 配下の承認済み成果物を正とする
+- 機能・業務ルール・権限・データ・状態・バリデーションは `01-requirements.md` を正本とする
+- design の位置づけは `meta.yaml` の `design_mode` に記録する。値は次の 3 種類とする:
+  - `canonical`: `docs/specs/<slug>/designs/` を採用済み画面の正本とし、フェーズ 1・2・3・4 で
+    継続して参照・再現する
+  - `reference`: `designs/` は方向性や候補を示す参考資料とする。画面正本や完成基準にはせず、
+    承認済み Markdown と既存 UI を優先する
+  - `none`: design 資料なし。`designs/` は必須としない
+- `design_mode` が未指定・`TBD`・上記以外の場合は、作業を進める前に人間へ確認する。
+  `designs/` がある場合は `canonical` / `reference`、ない場合は `none` を候補として提示し、
+  AI が推測で決めてはならない
+- `design_mode: canonical` の画面構成・レイアウト・表示文言・UI 状態・操作感・
+  デザイントークンは `designs/` を画面正本とする
+- `design_mode: reference` では、参考資料から採用する要素だけを `01-requirements.md` または
+  `02-design.md` に明記する。明記されていない要素の再現を必須にしない
+- `designs/` の HTML / JavaScript は本番コードの正本ではない。画面と挙動の意図を読み取り、
+  Laravel Blade / Tailwind CSS / Vite JavaScript / Controller / Service / Eloquent へ置き換える
+- プロトタイプ専用 UI、ダミーデータ、表示用ランタイム、未採用案は実装対象に含めない
+- 仕様は Markdown で管理する（`docs/specs/<slug>/`）。design 資料として `designs/` には
+  HTML・画像等の非 Markdown 資産を保存してよい
+- `design_mode: canonical` で `01-requirements.md` と `designs/` が担当領域内で食い違う、
+  または機能と画面のどちらの領域か判断できない場合は、実装に進まず差分を報告する
+- `design_mode: reference` で参考資料と承認済み成果物が食い違う場合は、承認済み成果物を優先する。
+  ただし採否が不明で要件へ影響する場合は人間へ確認する
 - 外部資料（チャット入力等）と specs が食い違う場合は、実装に進まず差分を報告する
 - SDD の手順は本ルールを正本とする。`.cursor/skills/sdd-feature/SKILL.md` や
   `docs/specs/README.md` と記載が食い違う場合は本ルールを優先し、食い違いに気づいたら報告する
@@ -19,6 +41,7 @@ alwaysApply: true
 
 - 命名規則は未確定。新規は `docs/specs/<slug>/` で開始（slug は英小文字・ハイフン推奨）
 - `meta.yaml` の `display_name` に日本語の正式名称を書く
+- `meta.yaml` の `design_mode` に `canonical` / `reference` / `none` のいずれかを書く
 - E2E との対応は `docs/specs/_registry.md` に追記する
 
 ## フェーズと停止条件
@@ -103,6 +126,14 @@ phase: 01-requirements
 ## フェーズ 1: 仕様整理
 
 - 仕様を読み、不明点を `open-questions.md` に列挙して質問する
+- `design_mode: canonical` の場合は採用済みファイル・画面・案を特定し、画面一覧、項目、文言、導線、
+  ロール別表示、正常・空・エラー・処理中等の UI 状態を要件へ反映する
+- `design_mode: reference` の場合は参考にする範囲と、採用して要件へ反映する要素を明記する。
+  参考資料だけを根拠に機能・画面要件を追加しない
+- 機能資料と `design_mode: canonical` の `designs/` の食い違い、およびプロトタイプ内の
+  機能要件に見える挙動は、
+  推測で採否を決めず `open-questions.md` で確認する
+- 未採用案・プロトタイプ専用機能・本番対象外の要素を明記し、採用画面と混同しない
 - 回答を反映し `01-requirements.md` を確定案にする
 - Laravel 側とフロント（Blade / Vite / JS）の責務を明記する
 - バリデーション（§7）・受け入れ条件（§11）・非機能要件（§9）に一意な ID
@@ -118,7 +149,8 @@ phase: 01-requirements
 1. 作成した本人（同一会話・同一コンテキストの AI）ではなく、**専用のレビューサブエージェント
    `sdd-requirements-reviewer`**（定義: `.cursor/agents/sdd-requirements-reviewer.md`、readonly、
    会話コンテキストを引き継がない新規セッション）を起動する
-2. レビュー対象として `01-requirements.md` / `open-questions.md` のパスと、チェックリスト
+2. レビュー対象として `01-requirements.md` / `open-questions.md` のパス、`designs/` がある場合は
+   `design_mode` と対象資産のパス、およびチェックリスト
    `docs/specs/<slug>/01-requirements-review-checklist.md` を渡し、全項目を ✓ / ✕ と理由で判定させる。
    スコープ・既存資産は `routes/` / `resources/` / `AGENTS.md` 等をコードベース検索して裏取りする
 3. 指摘のうち**機械的に修正可能なもの**（ID 欠番、§5.2↔§7 不一致、曖昧語、open-questions 未解決の
@@ -134,6 +166,14 @@ phase: 01-requirements
 
 - `01-requirements.status` が `approved` の場合のみ着手
 - Controller / Service / Model / Migration / Blade / Route / Job のクラス名・メソッド概要を記載
+- `design_mode: canonical` の場合は採用済みの HTML・スクリーンショット・説明を参照し、画面単位で
+  HTML 構造→Blade、スタイル→Tailwind CSS、画面操作→Vite JavaScript、データ・業務処理→
+  Controller / Service / Eloquent の変換方針を `02-design.md` に記載する
+- `design_mode: canonical` の場合は `designs/` の直接流用可否、共通 Blade 部品、
+  レスポンシブ対応、各 UI 状態、および
+  プロトタイプ専用要素をどう除外するかを明記する
+- `design_mode: reference` の場合は、参考にする要素、採用しない要素、既存 UI を優先する箇所を
+  `02-design.md` に明記する。参考資料との一致を設計目標にしない
 - 実装コードは書かない。人間がレビューできる粒度にする
 - §5 影響範囲に、既存の画面・API・共通部品・テーブルへの波及を `IMPACT-xx` の ID 付きで洗い出す。
   影響なしと判断した項目も、検討した上での判断であることが分かる理由を書く（未検討の放置禁止）
@@ -147,7 +187,8 @@ phase: 01-requirements
    `sdd-design-reviewer`**（定義: `.cursor/agents/sdd-design-reviewer.md`、readonly、
    会話コンテキストを引き継がない新規セッション）を起動する。
    汎用の explore 系エージェントは抜粋読みで全文検証に不向きなため使わない
-2. レビュー対象として `01-requirements.md` / `02-design.md` のパスと、チェックリスト
+2. レビュー対象として `01-requirements.md` / `02-design.md` のパス、`designs/` がある場合は
+   `design_mode` と対象資産のパス、およびチェックリスト
    `docs/specs/<slug>/02-design-review-checklist.md` を渡し、全項目を ✓ / ✕ と理由で判定させる。
    レビュアーは影響範囲（§5 `IMPACT-xx`）の記載を鵜呑みにせず、`app/` / `resources/` / `routes/` /
    `tests/e2e_tests/` をコードベース検索して裏取りする
@@ -175,6 +216,14 @@ phase: 01-requirements
 ## フェーズ 3: テスト設計
 
 - `02-design.status` が `approved` の場合のみ着手
+- `design_mode: canonical` の場合は、採用画面の主要導線、主要表示、ロール・状態別 UI、
+  空表示・エラー表示等を
+  テスト観点へ含める。主要な画面再現と操作は Playwright E2E、表示データや分岐は下位テストへ配置する
+- `design_mode: canonical` でも CSS の全要素を E2E で網羅せず、代表画面のスクリーンショット比較
+  または人間の画面確認など、
+  視覚的再現を確認する方法と対象画面を `03-test-plan.md` に明記する
+- `design_mode: reference` の場合は、Markdown成果物へ採用した要素だけを通常のテスト対象とし、
+  参考資料との視覚的一致を完了条件にしない
 - **テストピラミッド（レイヤ分担）** に従ってケースを配置する。正本は
   `.cursor/rules/testing-pyramid.mdc`。概要:
   - **Playwright E2E**: 重要ジャーニーの正常系（`trn`/`evt`）＋**画面固有**のクリティカル異常（`auth` のリダイレクト等）。
@@ -255,6 +304,17 @@ phase: 01-requirements
 ## フェーズ 4: 実装・テスト
 
 - `03-test-plan.status` が `approved` の場合のみ着手
+- `design_mode: canonical` の場合は実装前および画面実装中に採用済み資産を直接参照し、
+  `01-requirements.md` / `02-design.md` / `03-test-plan.md` だけから見た目を推測しない
+- `design_mode: reference` の場合は、`01-requirements.md` / `02-design.md` に採用済みと明記された
+  要素だけを実装し、その他は方向性の参考に留める。承認済み成果物と既存 UI を優先する
+- HTML / JavaScript プロトタイプを本番コードへそのまま貼り付けず、既存 Laravel 構成と
+  `02-design.md` の変換方針に従って Blade / Tailwind CSS / Vite JavaScript / バックエンドへ実装する
+- `design_mode: canonical` の場合は `designs/` に対する主要画面・主要状態の視覚的および
+  操作上の一致を確認する。完全なピクセル一致を
+  要件とする場合は `01-requirements.md` または `03-test-plan.md` に許容差を明記する
+- design を再現できない箇所、既存共通部品に合わせて変更した箇所、環境制約で確認できない箇所は、
+  独断で完了扱いにせず差分・理由・代替案を人間へ報告する
 - 実装 → PHPUnit（該当時）→ Vitest（該当時）→ Playwright の順で実行
 - 自動修正は最大 3 イテレーション。解決しない場合は人間にエスカレーションする
 
@@ -268,6 +328,9 @@ phase: 01-requirements
 | Vitest | 計画 CSV の全ケースを実装し全件成功 |
 | Playwright | `03-test-plan.csv` の全ケースを実装し全件成功 |
 
+- `design_mode: canonical` の場合は、テスト成功に加えて、`03-test-plan.md` で定めた
+  代表画面・主要状態の
+  視覚的再現確認を完了条件とする
 - **完了報告の前に Test ID 突合チェックを実行する**:
   ```powershell
   # CSV とテストコードの Test ID が全件一致することを確認
@@ -281,4 +344,6 @@ phase: 01-requirements
 - テストを歪めて通さない。基準に到達できない場合は、理由を `04-completion-report.md` に
   明記して人間の判断を仰ぐ
 - 完了時に `04-completion-report.md`（テンプレート: `_templates/04-completion-report.md`）を作成し、
-  テスト実行結果・エビデンスパス・基準未達の理由を記録して完了報告に含める
+  テスト実行結果・エビデンスパス・基準未達の理由を記録して完了報告に含める。
+  `design_mode: canonical` の場合は、確認した画面・状態、比較方法、差分と理由、
+  スクリーンショット等のエビデンスパスも記録する

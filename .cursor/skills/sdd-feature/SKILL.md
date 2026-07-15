@@ -13,7 +13,8 @@ description: >-
 ## 開始手順
 
 1. `docs/specs/_templates/` を `docs/specs/<slug>/` にコピー
-2. `meta.yaml` の `display_name` と `slug` を設定
+2. `meta.yaml` の `display_name`・`slug` と `design_mode`
+   （`canonical` / `reference` / `none`）を設定
 3. `docs/specs/_registry.md` に行を追加（feature_id は TBD 可）
 4. 仕様（チャット・Markdown）を読み、フェーズ 1 から開始
 
@@ -21,6 +22,8 @@ description: >-
 
 ### フェーズ 1: 仕様整理
 
+- [ ] `design_mode` を確認し、`designs/` があるのに未指定ならユーザーへ位置づけを確認
+- [ ] `canonical` は画面要件へ反映し、`reference` は参考範囲と採用要素だけを記録
 - [ ] `01-requirements.md` を作成・更新
 - [ ] `effort-report.md` の「§1 人手想定工数」にフェーズ別見積を記入（根拠つき）
 - [ ] 不明点を `open-questions.md` に記載し、ユーザーに質問
@@ -44,6 +47,7 @@ description: >-
   - メソッド概要（シグネチャレベル）
   - DB 変更（migration）
   - 画面・ルート・フロント（Blade / JS）
+  - `canonical` のLaravel変換方針、または `reference` から採用する要素と既存UI優先箇所
 - [ ] §5 影響範囲に、既存の画面・API・共通部品・テーブルへの波及を `IMPACT-xx` 付きで洗い出す
       （影響なしの判断も理由を明記する）
 - [ ] **承認確認を提示する前に**、専用レビューサブエージェント `sdd-design-reviewer`
@@ -61,6 +65,7 @@ description: >-
 - [ ] `.cursor/rules/testing-pyramid.mdc` に従い `03-test-plan.md` §1（ピラミッド・複合 VAL 分解表・閾値一覧）を記載
 - [ ] **PHPUnit / Vitest を先に設計**し、E2E 候補を §1.5（棚卸し: 維持/移行/削減）で分類してから E2E CSV を確定する
 - [ ] `03-test-plan.md` にテスト方針・カテゴリ別件数・§1.5 棚卸しを記載
+- [ ] `canonical` の場合は代表画面・主要状態の視覚的確認方法を記載
 - [ ] テスト種別ごとに CSV を分けてケース一覧を記載:
   - Playwright E2E: `03-test-plan.csv`
   - PHPUnit: `03-test-plan-phpunit.csv`（Service 等の単体テストがある場合）
@@ -87,6 +92,7 @@ description: >-
 - [ ] `03-test-plan.status` が `approved` であることを確認
 - [ ] Laravel 実装（リポジトリ直下）
 - [ ] フロント実装（Blade / Vite / JavaScript / Tailwind）
+- [ ] `canonical` は `designs/` を直接参照して再現し、`reference` は承認済みの採用要素だけを反映
 - [ ] PHPUnit（Service 単体、該当時）
 - [ ] Vitest（JS 単体、該当時）
 - [ ] Playwright E2E（`tests/e2e_tests/`）
@@ -94,7 +100,8 @@ description: >-
 - [ ] `npm run lint:sdd:testid -- <slug>` を実行し、CSV とテストコードの Test ID が全件一致することを
       確認する（ERROR = 未実装ケースあり → テスト追加後に再実行して 0 件を確認してから次へ進む）
 - [ ] E2E が環境制約で実行不能な場合は「未実行・理由・環境解決後に実行」を完了報告に明記する（実行できたことにしない）
-- [ ] `04-completion-report.md` を作成（テスト実行結果・Test ID 突合・エビデンスパス・基準未達の理由）
+- [ ] `04-completion-report.md` を作成（テスト実行結果・Test ID 突合・エビデンスパス・基準未達の理由。
+      `canonical` は画面比較結果・差分も記録）
 - [ ] 完了時に `effort-report.md` の「§2 実績記録」「§3 削減効果」を確定し、完了報告に含める
 - [ ] 実装・テストコード・完了報告を git commit する（`[SDD][<slug>] フェーズ4(実装・テスト) 完了`）
 
